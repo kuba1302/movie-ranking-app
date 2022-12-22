@@ -1,0 +1,122 @@
+{
+    "users": [
+        {
+            "id": 0,
+            "username": "user1",
+            "password": "password1"
+        },
+        {
+            "id": 1,
+            "username": "user2",
+            "password": "password2"
+        }
+    ],
+    "users_info": [
+        {
+            "user_id": 0,
+            "adress": "Al. Jerozolimskie 1",
+            "city": "warsaw",
+            "country": "poland",
+            "picture_url": "https://upload.wikimedia.org/wikipedia/en/4/4d/Shrek_%28character%29.png"
+        },
+        {
+            "user_id": 1,
+            "adress": "mazowiecka 1",
+            "city": "warsaw",
+            "country": "poland",
+            "picture_url": "https://static.wikia.nocookie.net/dreamworks/images/2/25/SkipperNew.png/revision/latest?cb=20211201221953"
+        }
+    ],
+    "movies": [
+        {
+            "id": 0,
+            "name": "The Shawshank Redemption",
+            "description": "Due to the increasing number of streaming services that allow people to watch films and series at favourable prices, users are increasingly faced with the following dilemma - which film/series should I watch? Therefore, in my project, I plan to create an application that allows aggregating the opinions of different users and creating a ranking of the best films and series.",
+            "category_id": 0,
+            "premiere_date": "10-09-1994",
+            "director_id": 0
+        },
+        {
+            "id": 1,
+            "name": "The Lord of the Rings - Two Towers",
+            "description": "The Fellowship of the Ring is shattered, but a desperate Frodo wants to fulfil his task at all costs. Aragorn and his companions prepare to fend off an attack by Saruman's hordes.",
+            "category_id": 1,
+            "premiere_date": "05-12-2002",
+            "director_id": 1
+        },
+        {
+            "id": 2,
+            "name": "The Lord of the Rings - Return of the king",
+            "description": "Zwieńczenie filmowej trylogii wg powieści Tolkiena. Aragorn jednoczy siły Śródziemia, szykując się do bitwy, która ma odwrócić uwagę Saurona od podążających w kierunku Góry Przeznaczenia hobbitów.",
+            "category_id": 1,
+            "premiere_date": "01-01-2003",
+            "director_id": 1
+        }
+    ], 
+    "ratings": [
+        {
+            "id": 0, 
+            "user_id": 0,
+            "movie_id": 0, 
+            "rating": 10, 
+            "rating_date": "21-12-2022"
+        },
+        {
+            "id": 1, 
+            "user_id": 0,
+            "movie_id": 1, 
+            "rating": 9, 
+            "rating_date": "20-12-2022"
+        },
+        {
+            "id": 2, 
+            "user_id": 0,
+            "movie_id": 2, 
+            "rating": 3, 
+            "rating_date": "19-12-2022"
+        },
+        {
+            "id": 3, 
+            "user_id": 1,
+            "movie_id": 0, 
+            "rating": 2, 
+            "rating_date": "21-12-2022"
+        },
+        {
+            "id": 4, 
+            "user_id": 1,
+            "movie_id": 1, 
+            "rating": 6, 
+            "rating_date": "15-12-2022"
+        },
+        {
+            "id": 5, 
+            "user_id": 0,
+            "movie_id": 2, 
+            "rating": 10, 
+            "rating_date": "10-12-2022"
+        }
+    ], 
+    "movie_categories": [
+        {
+            "id": 0,
+            "name": "thriller"
+        }, 
+        {
+            "id": 1,
+            "name": "fantasy"
+        }
+    ], 
+    "directors": [
+        {
+            "id": 0,
+            "name": "Frank",
+            "surname": "Darabont"
+        },
+        {
+            "id": 1,
+            "name": "Peter",
+            "surname": "Jackson"
+        }
+    ]
+}
