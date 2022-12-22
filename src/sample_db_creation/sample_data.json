@@ -47,7 +47,7 @@
         {
             "id": 2,
             "name": "The Lord of the Rings - Return of the king",
-            "description": "Zwieńczenie filmowej trylogii wg powieści Tolkiena. Aragorn jednoczy siły Śródziemia, szykując się do bitwy, która ma odwrócić uwagę Saurona od podążających w kierunku Góry Przeznaczenia hobbitów.",
+            "description": "The culmination of the film trilogy based on Tolkien's novel. Aragorn unites the forces of Middle-earth, preparing for a battle to distract Sauron from the hobbits heading towards Mount Doom.",
             "category_id": 1,
             "premiere_date": "01-01-2003",
             "director_id": 1
