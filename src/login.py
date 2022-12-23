@@ -1,7 +1,8 @@
+from fastapi import HTTPException, Request, status
 from pydantic import BaseModel
-from fastapi import Request, HTTPException, status
-from src.models import User
-from src.sqlite import get_database_cursor, dict_from_row
+
+from src.sqlite.models import User
+from src.sqlite import dict_from_row, get_database_cursor
 
 
 class WrongCredentialException(Exception):

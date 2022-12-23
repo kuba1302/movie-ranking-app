@@ -1,18 +1,22 @@
-from fastapi import Depends, FastAPI, HTTPException, status, Request, Form
-from fastapi.templating import Jinja2Templates
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from pydantic import BaseModel
-from loguru import logger
-templates = Jinja2Templates(directory="templates")
-
 from datetime import datetime, timedelta
 
-from fastapi import Depends, FastAPI, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi import Depends, FastAPI, Form, HTTPException, Request, status
+from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from jose import JWTError, jwt
+from loguru import logger
 from passlib.context import CryptContext
 from pydantic import BaseModel
 
+from src.auth import OAuth2PasswordBearerWithCookie
+from src.config import Settings
+
+app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+templates = Jinja2Templates(directory="templates")
+ouath2 = OAuth2PasswordBearerWithCookie(tokenUrl="token")
 
 @app.get("/login")
 def login(request: Request):
