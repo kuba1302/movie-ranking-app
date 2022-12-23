@@ -29,5 +29,5 @@ def get_database_cursor_and_commit():
     con = _sqlite_con()
     cur = con.cursor()
     yield cur
-    cur.commit()
+    con.commit()
     con.close()
