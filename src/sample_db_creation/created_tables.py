@@ -6,7 +6,7 @@ CREATE_USERS_QUERY = """
     (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
         username VARCHAR(36), 
-        password VARCHAR(36)
+        password_hash VARCHAR(60)
     );  
 """
 CREATE_USERS_INFO_QUERY = """

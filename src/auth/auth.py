@@ -32,7 +32,7 @@ def _query_user(username: str) -> User | None:
     query = """
                 SELECT  id, 
                         username, 
-                        password
+                        password_hash
                 FROM users
                 WHERE username = :username ;
                 """
@@ -53,7 +53,7 @@ def authenticate_user(user_form: UserForm) -> User:
         raise credentials_exception
 
     # TODO CHANGE PASSWORD TO HASHED PASSWORD IN DB
-    if not _verify_password(user_form.password, user.password):
+    if not _verify_password(user_form.password, user.password_hash):
         raise credentials_exception
 
     return user

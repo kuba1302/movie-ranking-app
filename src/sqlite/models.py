@@ -4,7 +4,7 @@ from pydantic import BaseModel
 class User(BaseModel):
     id: int
     username: str
-    password: str
+    password_hash: str
 
 
 class UserInfo(BaseModel):

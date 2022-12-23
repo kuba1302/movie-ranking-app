@@ -3,12 +3,12 @@
         {
             "id": 0,
             "username": "user1",
-            "password": "password1"
+            "password": "$2b$12$PoBTB6/4rv9x4gCSArhv9uLO2Rn7Ap/QP7zRI.akdNJ0SxjqVlhsy"
         },
         {
             "id": 1,
             "username": "user2",
-            "password": "password2"
+            "password": "$2b$12$6sLpSXOp7ujpe7eehqSmbeXMyDJB50zKiJv7fELWXob7zANWtnP/C"
         }
     ],
     "users_info": [
