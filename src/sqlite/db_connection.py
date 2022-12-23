@@ -7,6 +7,10 @@ def _sqlite_con(db_file: str = "db.db"):
     return sqlite3.connect(Path(__file__).parents[2] / db_file)
 
 
+def dict_from_row(row):
+    return dict(zip(row.keys(), row))
+
+
 @contextmanager
 def get_database_connection():
     con = _sqlite_con()
