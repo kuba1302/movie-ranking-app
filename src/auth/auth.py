@@ -1,7 +1,6 @@
 import datetime
 
 from fastapi import HTTPException, status, Request
-from fastapi.responses import RedirectResponse
 from jose import JWTError, jwt
 from loguru import logger
 from passlib.context import CryptContext
