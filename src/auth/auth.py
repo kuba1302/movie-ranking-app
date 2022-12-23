@@ -1,11 +1,14 @@
-from fastapi import HTTPException, status
-from passlib.context import CryptContext
-from src.sqlite.models import User
-from src.sqlite import get_database_cursor, dict_from_row
 import datetime
-from src.config import Settings
-from jose import jwt, JWTError
+
+from fastapi import HTTPException, status
+from jose import JWTError, jwt
 from loguru import logger
+from passlib.context import CryptContext
+
+from src.config import Settings
+from src.sqlite import dict_from_row, get_database_cursor
+from src.sqlite.models import User
+
 
 def _verify_password(
     pwd_context: CryptContext, plain_password: str, hashed_password: str
@@ -77,12 +80,10 @@ def decode_token(token: str) -> str:
         username: str = payload.get("username")
         if username is None:
             raise credentials_exception
-        
+
     except JWTError as e:
         logger.info(e)
         raise credentials_exception
 
     user = _query_user(username)
     return user
-
-

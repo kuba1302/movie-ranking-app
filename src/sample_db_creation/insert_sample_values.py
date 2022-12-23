@@ -18,8 +18,7 @@ class DataInserter:
         sample_data = self._load_data(sample_data_path)
         print([x for x in sample_data.items()])
         self.data = [
-            Table(name=name, values=values)
-            for name, values in sample_data.items()
+            Table(name=name, values=values) for name, values in sample_data.items()
         ]
 
     @staticmethod

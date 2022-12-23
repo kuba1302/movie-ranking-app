@@ -12,7 +12,7 @@ class OAuth2PasswordBearerWithCookie(OAuth2):
 
     He menaged to make it use cookies instead of header.
     This makes it usable for webapps instead of API.
-    
+
     I have made changes only to typing
     """
 
@@ -26,9 +26,7 @@ class OAuth2PasswordBearerWithCookie(OAuth2):
     ):
         if not scopes:
             scopes = {}
-        flows = OAuthFlowsModel(
-            password={"tokenUrl": tokenUrl, "scopes": scopes}
-        )
+        flows = OAuthFlowsModel(password={"tokenUrl": tokenUrl, "scopes": scopes})
         super().__init__(
             flows=flows,
             scheme_name=scheme_name,

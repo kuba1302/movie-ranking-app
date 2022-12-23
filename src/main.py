@@ -18,6 +18,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 ouath2 = OAuth2PasswordBearerWithCookie(tokenUrl="token")
 
+
 @app.get("/login")
 def login(request: Request):
     logger.info(request)

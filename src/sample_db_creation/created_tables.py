@@ -81,20 +81,22 @@ CREATE_ACTOR_OCCURENCES_QUERY = """
 """
 
 queries_to_execute = [
-    CREATE_USERS_QUERY, 
+    CREATE_USERS_QUERY,
     CREATE_USERS_INFO_QUERY,
     CREATE_MOVIE_CATEGORIES_QUERY,
-    CREATE_DIRECTORS_QUERY, 
-    CREATE_MOVIES_QUERY, 
-    CREATE_RATINGS_QUERY, 
-    CREATE_ACTORS_QUERY, 
-    CREATE_ACTOR_OCCURENCES_QUERY
+    CREATE_DIRECTORS_QUERY,
+    CREATE_MOVIES_QUERY,
+    CREATE_RATINGS_QUERY,
+    CREATE_ACTORS_QUERY,
+    CREATE_ACTOR_OCCURENCES_QUERY,
 ]
 
-def create_all_tables(queries: list[str]) -> None: 
+
+def create_all_tables(queries: list[str]) -> None:
     with get_database_cursor() as cursor:
         for query in queries:
             cursor.execute(query)
-            
+
+
 if __name__ == "__main__":
     create_all_tables(queries_to_execute)
