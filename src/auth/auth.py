@@ -1,6 +1,7 @@
 import datetime
 
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Request
+from fastapi.responses import RedirectResponse
 from jose import JWTError, jwt
 from loguru import logger
 from passlib.context import CryptContext
@@ -8,15 +9,22 @@ from passlib.context import CryptContext
 from src.config import Settings
 from src.sqlite import dict_from_row, get_database_cursor
 from src.sqlite.models import User
+from src.auth.models import UserForm, UserFormValidation
+from passlib.context import CryptContext
+
+credentials_exception = HTTPException(
+    status_code=status.HTTP_401_UNAUTHORIZED,
+    detail="Could not validate credentials.",
+)
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def _verify_password(
-    pwd_context: CryptContext, plain_password: str, hashed_password: str
-) -> bool:
+def _verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def _get_password_hash(pwd_context: CryptContext, password: str) -> str:
+def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 
@@ -36,18 +44,17 @@ def _query_user(username: str) -> User | None:
         if not result:
             return None
         else:
-            return User(**dict_from_row(cursor.fetchone()))
+            return User(**dict_from_row(result))
 
 
-def authenticate_user(username: str, password: str) -> User | bool:
-    user = _query_user(username)
-
+def authenticate_user(user_form: UserForm) -> User:
+    user = _query_user(user_form.username)
     if not user:
-        return False
-    # TODO CHANGE PASSWORD TO HASHED PASSWORD IN DB
+        raise credentials_exception
 
-    if not _verify_password(password, user.password):
-        return False
+    # TODO CHANGE PASSWORD TO HASHED PASSWORD IN DB
+    if not _verify_password(user_form.password, user.password):
+        raise credentials_exception
 
     return user
 
@@ -68,10 +75,6 @@ def create_access_token(
 
 
 def decode_token(token: str) -> str:
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials.",
-    )
     token = token.removeprefix("Bearer").strip()
     try:
         payload = jwt.decode(
@@ -87,3 +90,22 @@ def decode_token(token: str) -> str:
 
     user = _query_user(username)
     return user
+
+
+def get_user_from_cookie(request: Request) -> User:
+    token = request.cookies.get(Settings.COOKIE_NAME)
+    return decode_token(token)
+
+
+async def load_data_from_request(request: Request) -> UserForm:
+    form = await request.form()
+    return UserForm(
+        username=form.get("username"), password=form.get("password")
+    )
+
+
+def validate_user_form(user_form: UserForm) -> UserFormValidation:
+    return UserFormValidation(
+        valid_username=True if user_form.username else False,
+        valid_password=True if user_form.password else False,
+    )
