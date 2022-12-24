@@ -1,0 +1,17 @@
+<html>
+
+<h1> Welcome to movie ranking app!</h1>
+{% if user %}
+<p> Hello {{ user.username }} user! </p>
+{% else %}
+<p> Hello not signed up user! </p>
+
+<div class='sign-href'>
+    <p><a href='/login'>Click here to login</a></p>
+</div>
+<div class='sign-href'>
+    <p><a href='/signup'>Click here to sign up</a></p>
+</div>
+{% endif %}
+
+</html>

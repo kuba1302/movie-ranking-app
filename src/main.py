@@ -1,19 +1,31 @@
-from fastapi import Depends, FastAPI, Form, HTTPException, Request, status
+from fastapi import (
+    Depends,
+    FastAPI,
+    Form,
+    HTTPException,
+    Request,
+    status,
+    Response,
+)
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import RedirectResponse
-from jose import JWTError, jwt
+from fastapi.responses import RedirectResponse, HTMLResponse
 from loguru import logger
 from pydantic import BaseModel
 
 from src.auth import OAuth2PasswordBearerWithCookie
+from fastapi.security import OAuth2, OAuth2PasswordRequestForm
 from src.auth.auth import (
     load_data_from_request,
     validate_user_form,
     authenticate_user,
+    decode_token,
+    get_user_from_cookie,
+    create_access_token,
 )
+from src.config import settings
 from src.auth.models import UserFormValidation
-from src.config import Settings
+from src.sqlite.models import User
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -30,7 +42,31 @@ class ResponseContext(UserFormValidation):
         arbitrary_types_allowed = True
 
 
-@app.get("/login")
+class UserContext(BaseModel):
+    request: Request
+    user: dict[str, str] | None
+
+    class Config:
+        arbitrary_types_allowed = True
+
+
+def get_current_user_from_token(token: str = Depends(ouath2)) -> User:
+    return decode_token(token)
+
+
+@app.post("token")
+def login_for_access_token(
+    response: Response, form_data: OAuth2PasswordRequestForm = Depends()
+) -> dict[str, str]:
+    user = authenticate_user(form_data)
+    access_token = create_access_token(data={"username": user.username})
+    response.set_cookie(
+        key=settings.COOKIE_NAME, value=f"Bearer {access_token}", httponly=True
+    )
+    return {settings.COOKIE_NAME: access_token, "token_type": "bearer"}
+
+
+@app.get("/login", response_class=HTMLResponse)
 def login(request: Request):
     context = ResponseContext(
         valid_password=True,
@@ -50,21 +86,35 @@ async def login(request: Request):
         context = ResponseContext(
             **user_form_validation.dict(),
             request=request,
-            unmatched_credentials=False
+            unmatched_credentials=False,
         )
         return templates.TemplateResponse("auth/login.html", context.dict())
 
     try:
-        authenticate_user(user_form)
-        return RedirectResponse("/", status_code=status.HTTP_303_SEE_OTHER)
+        response = RedirectResponse("/", status_code=status.HTTP_303_SEE_OTHER)
+        login_for_access_token(response=response, form_data=user_form)
+        return response
 
     except HTTPException:
         context = ResponseContext(
             **user_form_validation.dict(),
             request=request,
-            unmatched_credentials=True
+            unmatched_credentials=True,
         )
         return templates.TemplateResponse(
             "auth/login.html",
             context.dict(),
         )
+
+
+@app.get("/", response_class=HTMLResponse)
+def home(request: Request):
+    try:
+        user = get_user_from_cookie(request)
+        logger.info(user)
+        context = UserContext(request=request, user=user.dict())
+        return templates.TemplateResponse("home.html", context.dict())
+
+    except HTTPException:
+        context = UserContext(request=request, user=None)
+        return templates.TemplateResponse("home.html", context.dict())

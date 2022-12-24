@@ -1,11 +1,11 @@
-import datetime
+from datetime import datetime, timedelta
 
 from fastapi import HTTPException, status, Request
 from jose import JWTError, jwt
 from loguru import logger
 from passlib.context import CryptContext
 
-from src.config import Settings
+from src.config import settings
 from src.sqlite import dict_from_row, get_database_cursor
 from src.sqlite.models import User
 from src.auth.models import UserForm, UserFormValidation
@@ -59,25 +59,28 @@ def authenticate_user(user_form: UserForm) -> User:
 
 
 def create_access_token(
-    data: dict, expires_delta: datetime.timedelta | None = None
+    data: dict, expires_delta: timedelta | None = None
 ) -> str:
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.utcnow() + datetime.timedelta(minutes=15)
+        expire = datetime.utcnow() + timedelta(minutes=15)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(
-        to_encode, Settings.SECRET_KEY, algorithm=Settings.ALGORITHM
+        to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM
     )
     return encoded_jwt
 
 
 def decode_token(token: str) -> str:
+    if not token:
+        raise credentials_exception
+    
     token = token.removeprefix("Bearer").strip()
     try:
         payload = jwt.decode(
-            token, Settings.SECRET_KEY, algorithms=[Settings.ALGORITHM]
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
         )
         username: str = payload.get("username")
         if username is None:
@@ -92,7 +95,8 @@ def decode_token(token: str) -> str:
 
 
 def get_user_from_cookie(request: Request) -> User:
-    token = request.cookies.get(Settings.COOKIE_NAME)
+    token = request.cookies.get(settings.COOKIE_NAME)
+    logger.debug(token)
     return decode_token(token)
 
 
