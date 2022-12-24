@@ -3,6 +3,9 @@
 <h1> Welcome to movie ranking app!</h1>
 {% if user %}
 <p> Hello {{ user.username }} user! </p>
+<div class='sign-href'>
+    <p><a href='/logout'>Click here to logout</a></p>
+</div>
 {% else %}
 <p> Hello not signed up user! </p>
 

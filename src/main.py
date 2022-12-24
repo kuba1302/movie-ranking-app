@@ -107,11 +107,22 @@ async def login(request: Request):
         )
 
 
+@app.get("/signup", response_class=HTMLResponse)
+def sign_up(request: Request):
+    return templates.TemplateResponse("auth/signup.html", {"request": request})
+
+
+@app.get("/logout", response_class=HTMLResponse)
+def login_get():
+    response = RedirectResponse(url="/")
+    response.delete_cookie(settings.COOKIE_NAME)
+    return response
+
+
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
     try:
         user = get_user_from_cookie(request)
-        logger.info(user)
         context = UserContext(request=request, user=user.dict())
         return templates.TemplateResponse("home.html", context.dict())
 
