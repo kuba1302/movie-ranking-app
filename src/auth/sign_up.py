@@ -31,11 +31,19 @@ class UserInputValidator:
 
     def _detect_spaces(self, form: str) -> bool:
         if " " in form:
-            return False
-        else:
             return True
+        else:
+            return False
 
-    def check_if_not_none(self):
+    def check_if_no_spaces(self) -> None:
+        fields_to_check = ["password", "username"]
+        for field in fields_to_check:
+            if self._detect_spaces(
+                self.sign_up_form.dict()[field]
+            ):
+                self.sign_up_validation.update_value(f"valid_{field}", False)
+
+    def check_if_not_none(self) -> None:
         for key, value in self.sign_up_form.dict().items():
             if not value:
                 self.sign_up_validation.update_value(f"valid_{key}", value)
@@ -59,11 +67,22 @@ class UserInputValidator:
 
     def is_valid(self) -> bool:
         self.check_if_not_none()
+        self.check_if_no_spaces()
 
         if self.sign_up_validation.valid and self.check_if_user_exists():
             return True
         else:
             return False
+
+    def get_validation(self) -> SignUpFormValidation:
+        return self.sign_up_validation
+
+    def get_invalid_fields(self) -> list:
+        return [
+            field.split("_")[1]
+            for field, bool_value in self.sign_up_validation.dict().items()
+            if not bool_value
+        ]
 
 
 class UserCreator:
@@ -83,7 +102,7 @@ class UserCreator:
         self.sign_up_form = sign_up_form
 
     @staticmethod
-    def crypt_password(password) -> str:
+    def crypt_password(password: str) -> str:
         return crypt_context.hash(password)
 
     def get_ready_user_with_hash(self) -> User:
@@ -96,7 +115,7 @@ class UserCreator:
         with get_database_cursor_and_commit() as cursor:
             user = self.get_ready_user_with_hash()
             cursor.execute(self.USER_CREATE_QUERY, user.dict())
-            
+
             user_id = cursor.fetchone()[0]
             user_info = UserInfo(user_id=user_id, **self.sign_up_form.dict())
             cursor.execute(self.USER_INFO_CREATE_QUERY, user_info.dict())

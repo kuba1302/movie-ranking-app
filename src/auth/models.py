@@ -43,3 +43,4 @@ class SignUpFormValidation(BaseModel):
 
     def update_value(self, key: str, value: bool) -> None:
         setattr(self, key, value)
+

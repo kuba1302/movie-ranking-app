@@ -116,7 +116,9 @@ async def login(request: Request):
 
 @app.get("/signup", response_class=HTMLResponse)
 def sign_up(request: Request):
-    return templates.TemplateResponse("auth/signup.html", {"request": request})
+    return templates.TemplateResponse(
+        "auth/signup.html", {"request": request, "invalid_fields": []}
+    )
 
 
 @app.post("/signup", response_class=HTMLResponse)
@@ -125,7 +127,10 @@ async def sign_up(request: Request):
     validator = UserInputValidator(sing_up_form=sing_up_form)
 
     if not validator.is_valid():
-        context_not_valid = {"request": request}
+        context_not_valid = {
+            "request": request,
+            "invalid_fields": validator.get_invalid_fields(),
+        }
         return templates.TemplateResponse(
             "auth/signup.html", context_not_valid
         )
@@ -133,7 +138,6 @@ async def sign_up(request: Request):
     user_creator = UserCreator(sing_up_form)
     user_creator.insert_user_data()
 
-    context = LoginResponseContext.base_correct_context(request=request)
     return RedirectResponse("/login", status_code=status.HTTP_303_SEE_OTHER)
 
 
