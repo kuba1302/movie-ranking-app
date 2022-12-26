@@ -1,7 +1,7 @@
 from pydantic import BaseSettings, Field
 
 
-class settings(BaseSettings):
+class Settings(BaseSettings):
     SECRET_KEY: str = Field(default="secret-key", env="SECRET_KEY")
     ALGORITHM: str = Field(default="HS256", env="ALGORITHM")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(
@@ -12,4 +12,4 @@ class settings(BaseSettings):
     class Config:
         env_file = None
         
-settings = settings()
+settings = Settings()

@@ -34,7 +34,7 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 templates = Jinja2Templates(directory="templates")
-ouath2 = OAuth2PasswordBearerWithCookie(tokenUrl="token")
+ouath2 = OAuth2PasswordBearerWithCookie(tokenUrl="token") #TODO MAKE RETURN 401 PAGE NOT ONLY CODE
 
 
 class LoginResponseContext(UserFormValidation):
@@ -158,3 +158,14 @@ def home(request: Request):
     except HTTPException:
         context = UserContext(request=request, user=None)
         return templates.TemplateResponse("home.html", context.dict())
+
+
+@app.get("/ranking", response_class=HTMLResponse)
+def ranking(request: Request, user: User = Depends(get_current_user_from_token)):
+    ...
+    """
+    1. Na gorze filtr (od najnowszych, najstarszych, najlepiej/najgorzej oceniany)
+    2. Wyswietlamy liste filmow w wybranej kolejnosci
+    3. Kazdy film ma, swoja strone z dokladnymi danymi
+    4. Na dokladnej stronie, uzytkownik moze oddac glos na film
+    """

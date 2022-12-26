@@ -3,13 +3,12 @@ from datetime import datetime, timedelta
 from fastapi import HTTPException, status, Request
 from jose import JWTError, jwt
 from loguru import logger
-from passlib.context import CryptContext
 
 from src.config import settings
 from src.sqlite import dict_from_row, get_database_cursor
 from src.sqlite.models import User
 from src.auth.models import UserForm, UserFormValidation
-from src.auth import crypt_context
+from src.auth.crypt_context import crypt_context
 
 credentials_exception = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
@@ -49,7 +48,6 @@ def authenticate_user(user_form: UserForm) -> User:
     if not user:
         raise credentials_exception
 
-    # TODO CHANGE PASSWORD TO HASHED PASSWORD IN DB
     if not _verify_password(user_form.password, user.password_hash):
         raise credentials_exception
 
