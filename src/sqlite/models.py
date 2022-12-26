@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 
 class User(BaseModel):
-    id: int
+    id: int | None
     username: str
     password_hash: str
 
@@ -12,7 +12,6 @@ class UserInfo(BaseModel):
     adress: str
     city: str
     country: str
-    picture_url: str
 
 
 class Movie(BaseModel):

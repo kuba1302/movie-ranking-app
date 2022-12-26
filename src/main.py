@@ -15,13 +15,16 @@ from pydantic import BaseModel
 
 from src.auth import OAuth2PasswordBearerWithCookie
 from fastapi.security import OAuth2, OAuth2PasswordRequestForm
-from src.auth.auth import (
+from src.auth import (
     load_data_from_request,
     validate_user_form,
     authenticate_user,
     decode_token,
     get_user_from_cookie,
     create_access_token,
+    load_sign_up_form_from_request,
+    UserCreator,
+    UserInputValidator,
 )
 from src.config import settings
 from src.auth.models import UserFormValidation
@@ -34,12 +37,21 @@ templates = Jinja2Templates(directory="templates")
 ouath2 = OAuth2PasswordBearerWithCookie(tokenUrl="token")
 
 
-class ResponseContext(UserFormValidation):
+class LoginResponseContext(UserFormValidation):
     request: Request
     unmatched_credentials: bool
 
     class Config:
         arbitrary_types_allowed = True
+
+    @classmethod
+    def base_correct_context(cls, request: Request):
+        return cls(
+            valid_password=True,
+            valid_username=True,
+            request=request,
+            unmatched_credentials=False,
+        )
 
 
 class UserContext(BaseModel):
@@ -68,12 +80,7 @@ def login_for_access_token(
 
 @app.get("/login", response_class=HTMLResponse)
 def login(request: Request):
-    context = ResponseContext(
-        valid_password=True,
-        valid_username=True,
-        request=request,
-        unmatched_credentials=False,
-    )
+    context = LoginResponseContext.base_correct_context(request=request)
     return templates.TemplateResponse("auth/login.html", context.dict())
 
 
@@ -83,7 +90,7 @@ async def login(request: Request):
     user_form_validation = validate_user_form(user_form)
 
     if not user_form_validation.valid:
-        context = ResponseContext(
+        context = LoginResponseContext(
             **user_form_validation.dict(),
             request=request,
             unmatched_credentials=False,
@@ -96,7 +103,7 @@ async def login(request: Request):
         return response
 
     except HTTPException:
-        context = ResponseContext(
+        context = LoginResponseContext(
             **user_form_validation.dict(),
             request=request,
             unmatched_credentials=True,
@@ -110,6 +117,24 @@ async def login(request: Request):
 @app.get("/signup", response_class=HTMLResponse)
 def sign_up(request: Request):
     return templates.TemplateResponse("auth/signup.html", {"request": request})
+
+
+@app.post("/signup", response_class=HTMLResponse)
+async def sign_up(request: Request):
+    sing_up_form = await load_sign_up_form_from_request(request)
+    validator = UserInputValidator(sing_up_form=sing_up_form)
+
+    if not validator.is_valid():
+        context_not_valid = {"request": request}
+        return templates.TemplateResponse(
+            "auth/signup.html", context_not_valid
+        )
+
+    user_creator = UserCreator(sing_up_form)
+    user_creator.insert_user_data()
+
+    context = LoginResponseContext.base_correct_context(request=request)
+    return RedirectResponse("/login", status_code=status.HTTP_303_SEE_OTHER)
 
 
 @app.get("/logout", response_class=HTMLResponse)

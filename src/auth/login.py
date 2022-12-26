@@ -9,22 +9,20 @@ from src.config import settings
 from src.sqlite import dict_from_row, get_database_cursor
 from src.sqlite.models import User
 from src.auth.models import UserForm, UserFormValidation
-from passlib.context import CryptContext
+from src.auth import crypt_context
 
 credentials_exception = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
     detail="Could not validate credentials.",
 )
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 
 def _verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    return crypt_context.verify(plain_password, hashed_password)
 
 
 def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+    return crypt_context.hash(password)
 
 
 def _query_user(username: str) -> User | None:
@@ -76,7 +74,7 @@ def create_access_token(
 def decode_token(token: str) -> str:
     if not token:
         raise credentials_exception
-    
+
     token = token.removeprefix("Bearer").strip()
     try:
         payload = jwt.decode(
