@@ -21,8 +21,7 @@ class TableCreator:
         ON movies.id = movie_ratings.id
         LEFT JOIN movie_categories
         ON movies.category_id = movie_categories.id
-        ORDER BY movie_ratings.mean_rating DESC
-        ;
+        ORDER BY movie_ratings.mean_rating DESC;
     """
 
     def get_movies_table(self) -> pd.DataFrame:
@@ -43,10 +42,3 @@ class TableCreator:
         )
         table["ranking_place"] = table.index + 1
         return table.to_dict(orient="records")
-
-
-if __name__ == "__main__":
-    table = TableCreator()
-    movies = table.get_worst_movies()
-    for one_movie in movies:
-        print(one_movie["index"])

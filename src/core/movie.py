@@ -4,7 +4,7 @@ from pydantic import BaseModel
 import ast
 import pprint
 from src.exceptions import NonExistentMovieException
-from src.models import Movie
+from src.models.context import Movie
 
 
 class MoviePageCreator:

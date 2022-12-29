@@ -6,8 +6,8 @@ from loguru import logger
 
 from src.config import settings
 from src.sqlite import dict_from_row, get_database_cursor
-from src.sqlite.models import User
-from src.auth.models import UserForm, UserFormValidation
+from src.models.db import User
+from src.models.auth import UserForm, UserFormValidation
 from src.auth.crypt_context import crypt_context
 
 credentials_exception = HTTPException(

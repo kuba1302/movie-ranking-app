@@ -24,15 +24,14 @@ from src.auth import (
     UserInputValidator,
 )
 from src.config import settings
-from src.models import (
+from src.models.context import (
     LoginResponseContext,
     RankingContext,
     UserContext,
     MoviesContext,
 )
-from src.sqlite.models import User
-from src.ranking import TableCreator
-from src.movie import MoviePageCreator
+from src.models.db import User
+from src.core import MoviePageCreator, TableCreator
 from src.exceptions import NonExistentMovieException
 
 app = FastAPI()

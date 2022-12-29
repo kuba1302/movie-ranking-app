@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from fastapi import Request
-from src.auth.models import UserFormValidation
+from src.models.auth import UserFormValidation
 
 # class ContextArbitraryTypesBase(BaseModel):
 #     class Config:

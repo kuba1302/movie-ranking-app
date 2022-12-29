@@ -1,8 +1,8 @@
 from fastapi import Request
 
 from src.sqlite import get_database_cursor_and_commit, get_database_cursor
-from src.auth.models import SignUpForm, SignUpFormValidation
-from src.sqlite.models import UserInfo, User
+from src.models.auth import SignUpForm, SignUpFormValidation
+from src.models.db import UserInfo, User
 from src.auth.crypt_context import crypt_context
 from loguru import logger
 
