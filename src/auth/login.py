@@ -1,14 +1,14 @@
 from datetime import datetime, timedelta
 
-from fastapi import HTTPException, status, Request
+from fastapi import HTTPException, Request, status
 from jose import JWTError, jwt
 from loguru import logger
 
-from src.config import settings
-from src.sqlite import dict_from_row, get_database_cursor
-from src.models.db import User
-from src.models.auth import UserForm, UserFormValidation
 from src.auth.crypt_context import crypt_context
+from src.config import settings
+from src.models.auth import UserForm, UserFormValidation
+from src.models.db import User
+from src.sqlite import dict_from_row, get_database_cursor
 
 credentials_exception = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
@@ -54,9 +54,7 @@ def authenticate_user(user_form: UserForm) -> User:
     return user
 
 
-def create_access_token(
-    data: dict, expires_delta: timedelta | None = None
-) -> str:
+def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
@@ -97,9 +95,7 @@ def get_user_from_cookie(request: Request) -> User:
 
 async def load_data_from_request(request: Request) -> UserForm:
     form = await request.form()
-    return UserForm(
-        username=form.get("username"), password=form.get("password")
-    )
+    return UserForm(username=form.get("username"), password=form.get("password"))
 
 
 def validate_user_form(user_form: UserForm) -> UserFormValidation:

@@ -1,10 +1,10 @@
 from fastapi import Request
-
-from src.sqlite import get_database_cursor_and_commit, get_database_cursor
-from src.models.auth import SignUpForm, SignUpFormValidation
-from src.models.db import UserInfo, User
-from src.auth.crypt_context import crypt_context
 from loguru import logger
+
+from src.auth.crypt_context import crypt_context
+from src.models.auth import SignUpForm, SignUpFormValidation
+from src.models.db import User, UserInfo
+from src.sqlite import get_database_cursor, get_database_cursor_and_commit
 
 
 async def load_sign_up_form_from_request(request: Request) -> SignUpForm:
@@ -38,9 +38,7 @@ class UserInputValidator:
     def check_if_no_spaces(self) -> None:
         fields_to_check = ["password", "username"]
         for field in fields_to_check:
-            if self._detect_spaces(
-                self.sign_up_form.dict()[field]
-            ):
+            if self._detect_spaces(self.sign_up_form.dict()[field]):
                 self.sign_up_validation.update_value(f"valid_{field}", False)
 
     def check_if_not_none(self) -> None:

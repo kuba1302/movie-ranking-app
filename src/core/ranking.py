@@ -1,5 +1,6 @@
-from src.sqlite import get_database_connection
 import pandas as pd
+
+from src.sqlite import get_database_connection
 
 
 class TableCreator:

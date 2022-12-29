@@ -1,38 +1,31 @@
-from fastapi import (
-    Depends,
-    FastAPI,
-    HTTPException,
-    Request,
-    status,
-    Response,
-)
+from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
+from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.security import OAuth2, OAuth2PasswordRequestForm
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import RedirectResponse, HTMLResponse
 
-from src.auth import OAuth2PasswordBearerWithCookie
-from fastapi.security import OAuth2, OAuth2PasswordRequestForm
 from src.auth import (
-    load_data_from_request,
-    validate_user_form,
-    authenticate_user,
-    decode_token,
-    get_user_from_cookie,
-    create_access_token,
-    load_sign_up_form_from_request,
+    OAuth2PasswordBearerWithCookie,
     UserCreator,
     UserInputValidator,
+    authenticate_user,
+    create_access_token,
+    decode_token,
+    get_user_from_cookie,
+    load_data_from_request,
+    load_sign_up_form_from_request,
+    validate_user_form,
 )
 from src.config import settings
-from src.models.context import (
-    LoginResponseContext,
-    RankingContext,
-    UserContext,
-    MoviesContext,
-)
-from src.models.db import User
 from src.core import MoviePageCreator, TableCreator
 from src.exceptions import NonExistentMovieException
+from src.models.context import (
+    LoginResponseContext,
+    MoviesContext,
+    RankingContext,
+    UserContext,
+)
+from src.models.db import User
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -115,9 +108,7 @@ async def sign_up(request: Request):
             "request": request,
             "invalid_fields": validator.get_invalid_fields(),
         }
-        return templates.TemplateResponse(
-            "auth/signup.html", context_not_valid
-        )
+        return templates.TemplateResponse("auth/signup.html", context_not_valid)
 
     user_creator = UserCreator(sing_up_form)
     user_creator.insert_user_data()
@@ -152,9 +143,7 @@ def home(request: Request):
 
 
 @app.get("/ranking", response_class=HTMLResponse)
-def ranking(
-    request: Request, user: User = Depends(get_current_user_from_token)
-):
+def ranking(request: Request, user: User = Depends(get_current_user_from_token)):
     table_creator = TableCreator()
     table = table_creator.get_best_movies()
     context = RankingContext(request=request, table=table)
