@@ -1,10 +1,12 @@
-from src.sqlite import get_database_cursor, dict_from_row
-import pandas as pd
-from pydantic import BaseModel
 import ast
 import pprint
+
+import pandas as pd
+from pydantic import BaseModel
+
 from src.exceptions import NonExistentMovieException
 from src.models.context import Movie
+from src.sqlite import dict_from_row, get_database_cursor
 
 
 class MoviePageCreator:
