@@ -1,9 +1,3 @@
-"""
-    1. Na gorze filtr (od najnowszych, najstarszych, najlepiej/najgorzej oceniany)
-    2. Wyswietlamy liste filmow w wybranej kolejnosci
-    3. Kazdy film ma, swoja strone z dokladnymi danymi
-    4. Na dokladnej stronie, uzytkownik moze oddac glos na film
-"""
 from src.sqlite import get_database_connection
 import pandas as pd
 
@@ -37,6 +31,7 @@ class TableCreator:
 
     def get_best_movies(self) -> list[dict]:
         table = self.get_movies_table()
+        table["index"] = table.index
         table["ranking_place"] = table.index + 1
         return table.to_dict(orient="records")
 
@@ -44,7 +39,7 @@ class TableCreator:
         table = (
             self.get_movies_table()
             .sort_values(by="mean_rating", ascending=True)
-            .reset_index(drop=True)
+            .reset_index(drop=False)
         )
         table["ranking_place"] = table.index + 1
         return table.to_dict(orient="records")
@@ -52,6 +47,6 @@ class TableCreator:
 
 if __name__ == "__main__":
     table = TableCreator()
-    movies = table.get_best_movies()
+    movies = table.get_worst_movies()
     for one_movie in movies:
-        print(one_movie["name"])
+        print(one_movie["index"])

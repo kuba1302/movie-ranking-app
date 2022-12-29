@@ -1,24 +1,21 @@
-from fastapi import HTTPException, Request, status
+from fastapi import HTTPException, Request, status, Response
 from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
 from fastapi.security import OAuth2
 from fastapi.security.utils import get_authorization_scheme_param
+from fastapi.templating import Jinja2Templates
 
 from src.config import settings
 
 
 class OAuth2PasswordBearerWithCookie(OAuth2):
     """
-    This class has been taken from https://github.com/SamEdwardes/samedwardes.com/blob/main/blog/2022-04-14-fastapi-webapp-with-auth/main.py
-
-    He menaged to make it use cookies instead of header.
-    This makes it usable for webapps instead of API.
-
-    I have made changes only to typing
+    This class has been inspired by https://github.com/SamEdwardes/samedwardes.com/blob/main/blog/2022-04-14-fastapi-webapp-with-auth/main.py
     """
 
     def __init__(
         self,
         tokenUrl: str,
+        templates: Jinja2Templates,
         scheme_name: str | None = None,
         scopes: dict[str, str] | None = None,
         description: str | None = None,
@@ -26,7 +23,10 @@ class OAuth2PasswordBearerWithCookie(OAuth2):
     ):
         if not scopes:
             scopes = {}
-        flows = OAuthFlowsModel(password={"tokenUrl": tokenUrl, "scopes": scopes})
+        flows = OAuthFlowsModel(
+            password={"tokenUrl": tokenUrl, "scopes": scopes}
+        )
+        self.templates = templates
         super().__init__(
             flows=flows,
             scheme_name=scheme_name,
@@ -34,15 +34,13 @@ class OAuth2PasswordBearerWithCookie(OAuth2):
             auto_error=auto_error,
         )
 
-    async def __call__(self, request: Request) -> str | None:
+    async def __call__(self, request: Request) -> str | None | Response:
         authorization: str = request.cookies.get(settings.COOKIE_NAME)
         scheme, param = get_authorization_scheme_param(authorization)
         if not authorization or scheme.lower() != "bearer":
             if self.auto_error:
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Not authenticated",
-                    headers={"WWW-Authenticate": "Bearer"},
+                return self.templates.TemplateResponse(
+                    "auth/credentials_expired.html", {"request": request}
                 )
             else:
                 return None

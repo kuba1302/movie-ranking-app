@@ -1,8 +1,13 @@
-from src.sqlite import get_database_connection
+from src.sqlite import get_database_cursor, dict_from_row
 import pandas as pd
+from pydantic import BaseModel
+import ast
+import pprint
+from src.exceptions import NonExistentMovieException
+from src.models import Movie
 
 
-class Movie:
+class MoviePageCreator:
     QUERY_MOVIE = """
         --sql
         with movie_ratings as (
@@ -30,7 +35,7 @@ class Movie:
         SELECT movies.name, 
                movies.description,
                movie_ratings.mean_rating, 
-               directors.name,
+               (directors.name || ' ' || directors.surname) as director,
                actors_agg.actors_data
         FROM movies
         LEFT JOIN movie_ratings
@@ -41,15 +46,27 @@ class Movie:
         ON movies.director_id = directors.id
         LEFT JOIN actors_agg
         ON movies.id = actors_agg.movie_id
+        WHERE movies.id = :movie_id
         ORDER BY movie_ratings.mean_rating DESC
         ;
     """
 
-    def get_movie(self) -> pd.DataFrame:
-        with get_database_connection() as connection:
-            return pd.read_sql(self.QUERY_MOVIE, connection)
+    def get_movie(self, movie_id: int) -> Movie:
+        query_params = {"movie_id": movie_id}
+
+        with get_database_cursor() as cursor:
+            cursor.execute(self.QUERY_MOVIE, query_params)
+            result = cursor.fetchone()
+            if not result:
+                raise NonExistentMovieException()
+            else:
+                result_dict = dict_from_row(result)
+                result_dict["actors_data"] = ast.literal_eval(
+                    result_dict["actors_data"]
+                )
+                return Movie(**result_dict)
 
 
 if __name__ == "__main__":
-    movie = Movie()
-    print(movie.get_movie().actors_data[0])
+    movie = MoviePageCreator()
+    pprint.pprint(movie.get_movie(1).dict())

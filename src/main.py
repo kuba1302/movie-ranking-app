@@ -1,7 +1,6 @@
 from fastapi import (
     Depends,
     FastAPI,
-    Form,
     HTTPException,
     Request,
     status,
@@ -10,8 +9,6 @@ from fastapi import (
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse, HTMLResponse
-from loguru import logger
-from pydantic import BaseModel
 
 from src.auth import OAuth2PasswordBearerWithCookie
 from fastapi.security import OAuth2, OAuth2PasswordRequestForm
@@ -27,55 +24,27 @@ from src.auth import (
     UserInputValidator,
 )
 from src.config import settings
-from src.auth.models import UserFormValidation
+from src.models import (
+    LoginResponseContext,
+    RankingContext,
+    UserContext,
+    MoviesContext,
+)
 from src.sqlite.models import User
 from src.ranking import TableCreator
-
+from src.movie import MoviePageCreator
+from src.exceptions import NonExistentMovieException
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 templates = Jinja2Templates(directory="templates")
-ouath2 = OAuth2PasswordBearerWithCookie(
-    tokenUrl="token"
-)  # TODO MAKE RETURN 401 PAGE NOT ONLY CODE
+ouath2 = OAuth2PasswordBearerWithCookie(tokenUrl="token", templates=templates)
+
 
 # class ContextArbitraryTypesBase(BaseModel):
 #     class Config:
 #         arbitrary_types_allowed = True
-
-
-class LoginResponseContext(UserFormValidation):
-    request: Request
-    unmatched_credentials: bool
-
-    class Config:
-        arbitrary_types_allowed = True
-
-    @classmethod
-    def base_correct_context(cls, request: Request):
-        return cls(
-            valid_password=True,
-            valid_username=True,
-            request=request,
-            unmatched_credentials=False,
-        )
-
-
-class UserContext(BaseModel):
-    request: Request
-    user: dict[str, str] | None
-
-    class Config:
-        arbitrary_types_allowed = True
-
-
-class RankingContext(BaseModel):
-    request: Request
-    table: list[dict]
-
-    class Config:
-        arbitrary_types_allowed = True
 
 
 def get_current_user_from_token(token: str = Depends(ouath2)) -> User:
@@ -164,6 +133,13 @@ def login_get():
     return response
 
 
+@app.get("/credentials-expired", response_class=HTMLResponse)
+def sign_up(request: Request):
+    return templates.TemplateResponse(
+        "auth/credentials_expired.html", {"request": request}
+    )
+
+
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
     try:
@@ -180,18 +156,24 @@ def home(request: Request):
 def ranking(
     request: Request, user: User = Depends(get_current_user_from_token)
 ):
-    """
-    1. Na gorze filtr (od najnowszych, najstarszych, najlepiej/najgorzej oceniany)
-    2. Wyswietlamy liste filmow w wybranej kolejnosci
-    3. Kazdy film ma, swoja strone z dokladnymi danymi
-    4. Na dokladnej stronie, uzytkownik moze oddac glos na film
-    """
     table_creator = TableCreator()
     table = table_creator.get_best_movies()
     context = RankingContext(request=request, table=table)
     return templates.TemplateResponse("ranking.html", context.dict())
 
 
-@app.get("movie/{movie_name}", response_class=HTMLResponse)
-def movie(request: Request, user: User = Depends(get_current_user_from_token)):
-    ...
+@app.get("/movie/{movie_id}", response_class=HTMLResponse)
+def movie(
+    movie_id: int,
+    request: Request,
+    user: User = Depends(get_current_user_from_token),
+):
+    movie_page_creator = MoviePageCreator()
+
+    try:
+        movie = movie_page_creator.get_movie(movie_id=movie_id)
+        context = MoviesContext(request=request, **movie.dict())
+        return templates.TemplateResponse("movie.html", context.dict())
+    except NonExistentMovieException:
+        context = MoviesContext.wrong_movie_context(request=request)
+        return templates.TemplateResponse("movie.html", context.dict())

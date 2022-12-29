@@ -92,7 +92,6 @@ def decode_token(token: str) -> str:
 
 def get_user_from_cookie(request: Request) -> User:
     token = request.cookies.get(settings.COOKIE_NAME)
-    logger.debug(token)
     return decode_token(token)
 
 
