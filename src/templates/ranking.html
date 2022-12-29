@@ -1,0 +1,34 @@
+<html>
+<link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet">
+<div class="ranking-page">
+    <div class="navigation-bar">
+        <div class="navigation-item">
+            <h1> Film ranking</h1>
+        </div>
+        <div class="navigation-item">
+            <h1> User details</h1>
+        </div>
+    </div>
+    <div>
+        <table>
+            <tr>
+                <th>Ranking</th>
+                <th>Movie name</th>
+                <th>Mean rating</th>
+
+            </tr>
+            {% for row in table %}
+            <tr>
+                <td>{{ row.ranking_place }}</td>
+                <td>{{ row.name }}</td>
+                <td>{{ row.mean_rating }}</td>
+            </tr>
+            {% endfor %}
+
+        </table>
+
+    </div>
+
+</div>
+
+</html>

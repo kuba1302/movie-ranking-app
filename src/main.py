@@ -29,12 +29,20 @@ from src.auth import (
 from src.config import settings
 from src.auth.models import UserFormValidation
 from src.sqlite.models import User
+from src.ranking import TableCreator
+
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 templates = Jinja2Templates(directory="templates")
-ouath2 = OAuth2PasswordBearerWithCookie(tokenUrl="token") #TODO MAKE RETURN 401 PAGE NOT ONLY CODE
+ouath2 = OAuth2PasswordBearerWithCookie(
+    tokenUrl="token"
+)  # TODO MAKE RETURN 401 PAGE NOT ONLY CODE
+
+# class ContextArbitraryTypesBase(BaseModel):
+#     class Config:
+#         arbitrary_types_allowed = True
 
 
 class LoginResponseContext(UserFormValidation):
@@ -57,6 +65,14 @@ class LoginResponseContext(UserFormValidation):
 class UserContext(BaseModel):
     request: Request
     user: dict[str, str] | None
+
+    class Config:
+        arbitrary_types_allowed = True
+
+
+class RankingContext(BaseModel):
+    request: Request
+    table: list[dict]
 
     class Config:
         arbitrary_types_allowed = True
@@ -161,11 +177,21 @@ def home(request: Request):
 
 
 @app.get("/ranking", response_class=HTMLResponse)
-def ranking(request: Request, user: User = Depends(get_current_user_from_token)):
-    ...
+def ranking(
+    request: Request, user: User = Depends(get_current_user_from_token)
+):
     """
     1. Na gorze filtr (od najnowszych, najstarszych, najlepiej/najgorzej oceniany)
     2. Wyswietlamy liste filmow w wybranej kolejnosci
     3. Kazdy film ma, swoja strone z dokladnymi danymi
     4. Na dokladnej stronie, uzytkownik moze oddac glos na film
     """
+    table_creator = TableCreator()
+    table = table_creator.get_best_movies()
+    context = RankingContext(request=request, table=table)
+    return templates.TemplateResponse("ranking.html", context.dict())
+
+
+@app.get("movie/{movie_name}", response_class=HTMLResponse)
+def movie(request: Request, user: User = Depends(get_current_user_from_token)):
+    ...
