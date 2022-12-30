@@ -1,3 +1,4 @@
+from typing import Any
 from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.security import OAuth2, OAuth2PasswordRequestForm
@@ -39,13 +40,13 @@ ouath2 = OAuth2PasswordBearerWithCookie(tokenUrl="token", templates=templates)
 #         arbitrary_types_allowed = True
 
 
-def get_current_user_from_token(token: str = Depends(ouath2)) -> User:
+def get_current_user_from_token(token: str = Depends(ouath2)) -> str | Any:
     return decode_token(token)
 
 
 @app.post("token")
 def login_for_access_token(
-    response: Response, form_data: OAuth2PasswordRequestForm = Depends()
+    response: Response, form_data: OAuth2PasswordRequestForm = Depends() 
 ) -> dict[str, str]:
     user = authenticate_user(form_data)
     access_token = create_access_token(data={"username": user.username})
@@ -56,7 +57,7 @@ def login_for_access_token(
 
 
 @app.get("/login", response_class=HTMLResponse)
-def login(request: Request):
+def login_post(request: Request):
     context = LoginResponseContext.base_correct_context(request=request)
     return templates.TemplateResponse("auth/login.html", context.dict())
 
@@ -76,7 +77,7 @@ async def login(request: Request):
 
     try:
         response = RedirectResponse("/", status_code=status.HTTP_303_SEE_OTHER)
-        login_for_access_token(response=response, form_data=user_form)
+        login_for_access_token(response=response, form_data=user_form) # type: ignore
         return response
 
     except HTTPException:
@@ -99,7 +100,7 @@ def sign_up(request: Request):
 
 
 @app.post("/signup", response_class=HTMLResponse)
-async def sign_up(request: Request):
+async def sign_up_post(request: Request):
     sing_up_form = await load_sign_up_form_from_request(request)
     validator = UserInputValidator(sing_up_form=sing_up_form)
 
@@ -124,7 +125,7 @@ def login_get():
 
 
 @app.get("/credentials-expired", response_class=HTMLResponse)
-def sign_up(request: Request):
+def credentials_expired(request: Request):
     return templates.TemplateResponse(
         "auth/credentials_expired.html", {"request": request}
     )
@@ -162,6 +163,15 @@ def movie(
         movie = movie_page_creator.get_movie(movie_id=movie_id)
         context = MoviesContext(request=request, **movie.dict())
         return templates.TemplateResponse("movie.html", context.dict())
+    
     except NonExistentMovieException:
         context = MoviesContext.wrong_movie_context(request=request)
         return templates.TemplateResponse("movie.html", context.dict())
+
+@app.post("/movie/{movie_id}", response_class=HTMLResponse)
+def movie_post(
+    movie_id: int,
+    request: Request,
+    user: User = Depends(get_current_user_from_token),
+):
+    ...

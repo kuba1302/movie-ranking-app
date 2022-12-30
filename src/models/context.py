@@ -2,6 +2,7 @@ from fastapi import Request
 from pydantic import BaseModel
 
 from src.models.auth import UserFormValidation
+from src.models.movie import Movie
 
 # class ContextArbitraryTypesBase(BaseModel):
 #     class Config:
@@ -39,15 +40,6 @@ class RankingContext(BaseModel):
 
     class Config:
         arbitrary_types_allowed = True
-
-
-class Movie(BaseModel):
-    name: str | None = None
-    description: str | None = None
-    mean_rating: float | None = None
-    director: str | None = None
-    name: str | None = None
-    actors_data: list[dict] | None = None
 
 
 class MoviesContext(Movie):

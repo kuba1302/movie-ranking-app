@@ -3,31 +3,32 @@ import pandas as pd
 from src.sqlite import get_database_connection
 
 
-class TableCreator:
-    SELECT_BEST_MOVIES_QUERY = """
-        --sql
-        with movie_ratings as (
-            SELECT AVG(rating) as mean_rating, 
-                   movies.id
-            FROM ratings
-            LEFT JOIN movies
-            ON ratings.movie_id = movies.id
-            GROUP BY ratings.movie_id
-        )
-        SELECT movies.name, 
-               movies.description,
-               movie_ratings.mean_rating
-        FROM movies
-        LEFT JOIN movie_ratings
-        ON movies.id = movie_ratings.id
-        LEFT JOIN movie_categories
-        ON movies.category_id = movie_categories.id
-        ORDER BY movie_ratings.mean_rating DESC;
-    """
+SELECT_BEST_MOVIES_QUERY = """
+    --sql
+    with movie_ratings as (
+        SELECT AVG(rating) as mean_rating, 
+                movies.id
+        FROM ratings
+        LEFT JOIN movies
+        ON ratings.movie_id = movies.id
+        GROUP BY ratings.movie_id
+    )
+    SELECT movies.name, 
+            movies.description,
+            movie_ratings.mean_rating
+    FROM movies
+    LEFT JOIN movie_ratings
+    ON movies.id = movie_ratings.id
+    LEFT JOIN movie_categories
+    ON movies.category_id = movie_categories.id
+    ORDER BY movie_ratings.mean_rating DESC;
+"""
 
+
+class TableCreator:
     def get_movies_table(self) -> pd.DataFrame:
         with get_database_connection() as connection:
-            return pd.read_sql(self.SELECT_BEST_MOVIES_QUERY, connection)
+            return pd.read_sql(SELECT_BEST_MOVIES_QUERY, connection)
 
     def get_best_movies(self) -> list[dict]:
         table = self.get_movies_table()
