@@ -6,6 +6,11 @@ class UserForm(BaseModel):
     password: str | None
 
 
+class NewUserInput(BaseModel):
+    username: str
+    password_hash: str
+
+
 class UserFormValidation(BaseModel):
     valid_username: bool
     valid_password: bool

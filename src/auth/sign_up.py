@@ -2,7 +2,7 @@ from fastapi import Request
 from loguru import logger
 
 from src.auth.crypt_context import crypt_context
-from src.models.auth import SignUpForm, SignUpFormValidation
+from src.models.auth import SignUpForm, SignUpFormValidation, NewUserInput
 from src.models.db import User, UserInfo
 from src.sqlite import get_database_cursor, get_database_cursor_and_commit
 
@@ -103,8 +103,8 @@ class UserCreator:
     def crypt_password(password: str) -> str:
         return crypt_context.hash(password)
 
-    def get_ready_user_with_hash(self) -> User:
-        return User(
+    def get_ready_user_with_hash(self) -> NewUserInput:
+        return NewUserInput(
             username=self.sign_up_form.username,
             password_hash=self.crypt_password(self.sign_up_form.password),
         )

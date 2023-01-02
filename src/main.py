@@ -4,6 +4,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.security import OAuth2, OAuth2PasswordRequestForm
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from loguru import logger
 
 from src.auth import (
     OAuth2PasswordBearerWithCookie,
@@ -18,8 +19,14 @@ from src.auth import (
     validate_user_form,
 )
 from src.config import settings
-from src.core import MoviePageCreator, TableCreator
+from src.core import (
+    MoviePageCreator,
+    MovieRatingUpdater,
+    TableCreator,
+    load_movie_rating_form_from_request,
+)
 from src.exceptions import NonExistentMovieException
+from src.models.movie import RatingUpdateInput
 from src.models.context import (
     LoginResponseContext,
     MoviesContext,
@@ -46,7 +53,7 @@ def get_current_user_from_token(token: str = Depends(ouath2)) -> str | Any:
 
 @app.post("token")
 def login_for_access_token(
-    response: Response, form_data: OAuth2PasswordRequestForm = Depends() 
+    response: Response, form_data: OAuth2PasswordRequestForm = Depends()
 ) -> dict[str, str]:
     user = authenticate_user(form_data)
     access_token = create_access_token(data={"username": user.username})
@@ -77,7 +84,7 @@ async def login(request: Request):
 
     try:
         response = RedirectResponse("/", status_code=status.HTTP_303_SEE_OTHER)
-        login_for_access_token(response=response, form_data=user_form) # type: ignore
+        login_for_access_token(response=response, form_data=user_form)  # type: ignore
         return response
 
     except HTTPException:
@@ -109,7 +116,9 @@ async def sign_up_post(request: Request):
             "request": request,
             "invalid_fields": validator.get_invalid_fields(),
         }
-        return templates.TemplateResponse("auth/signup.html", context_not_valid)
+        return templates.TemplateResponse(
+            "auth/signup.html", context_not_valid
+        )
 
     user_creator = UserCreator(sing_up_form)
     user_creator.insert_user_data()
@@ -144,7 +153,9 @@ def home(request: Request):
 
 
 @app.get("/ranking", response_class=HTMLResponse)
-def ranking(request: Request, user: User = Depends(get_current_user_from_token)):
+def ranking(
+    request: Request, user: User = Depends(get_current_user_from_token)
+):
     table_creator = TableCreator()
     table = table_creator.get_best_movies()
     context = RankingContext(request=request, table=table)
@@ -163,15 +174,25 @@ def movie(
         movie = movie_page_creator.get_movie(movie_id=movie_id)
         context = MoviesContext(request=request, **movie.dict())
         return templates.TemplateResponse("movie.html", context.dict())
-    
+
     except NonExistentMovieException:
         context = MoviesContext.wrong_movie_context(request=request)
         return templates.TemplateResponse("movie.html", context.dict())
 
+
 @app.post("/movie/{movie_id}", response_class=HTMLResponse)
-def movie_post(
+async def movie_post(
     movie_id: int,
     request: Request,
     user: User = Depends(get_current_user_from_token),
 ):
-    ...
+    logger.info(user)
+    rating = await load_movie_rating_form_from_request(request)
+    rating_input = RatingUpdateInput(movie_id=movie_id, rating=rating)
+    updater = MovieRatingUpdater(user.id)
+    updater.update_rating(rating_input)
+
+    movie_page_creator = MoviePageCreator()
+    movie = movie_page_creator.get_movie(movie_id=movie_id)
+    context = MoviesContext(request=request, **movie.dict())
+    return templates.TemplateResponse("movie.html", context.dict())

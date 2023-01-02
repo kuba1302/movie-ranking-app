@@ -56,7 +56,7 @@ CREATE_RATINGS_QUERY = """
         user_id INTEGER, 
         movie_id INTEGER, 
         rating INTEGER, 
-        rating_date TEXT,
+        rating_date TEXT, 
         FOREIGN KEY(movie_id) REFERENCES movies(id),
         FOREIGN KEY(user_id) REFERENCES users(id)
     );
@@ -97,6 +97,10 @@ def create_all_tables(queries: list[str]) -> None:
         for query in queries:
             cursor.execute(query)
 
-
+def create_one_table(query: str) -> None: 
+    with get_database_cursor() as cursor:
+        cursor.execute(query)
+        
+        
 if __name__ == "__main__":
-    create_all_tables(queries_to_execute)
+    create_one_table(CREATE_RATINGS_QUERY)

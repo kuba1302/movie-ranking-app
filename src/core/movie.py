@@ -1,17 +1,16 @@
 import ast
 import pprint
+from fastapi import Request
 
-import pandas as pd
-from pydantic import BaseModel
 from datetime import datetime
 from src.exceptions import NonExistentMovieException
-from src.models.movie import Movie, RatingUpdateInput
+from src.models.movie import Movie, RatingUpdateInput 
 from src.sqlite import (
     dict_from_row,
     get_database_cursor,
     get_database_cursor_and_commit,
 )
-
+from loguru import logger
 
 QUERY_MOVIE = """
     --sql
@@ -63,10 +62,7 @@ QUERY_CURRENT_USER_ID = """
 UPDATE_RATING_QUERY = """
     --sql
     INSERT INTO ratings(user_id, movie_id, rating, rating_date)
-    VALUES (:user_id, :movie_id, :rating, :rating_date)
-    ON CONFLICT(user_id, movie_id) DO UPDATE SET
-        rating=:rating,
-        rating_date=:rating_date;
+    VALUES (:user_id, :movie_id, :rating, :rating_date);
 """
 
 
@@ -91,25 +87,11 @@ class MoviePageCreator:
 
 
 class MovieRatingUpdater:
-    def __init__(self, username: str) -> None:
-        self.user_id = self._get_user_id(username)
-
-    def _get_user_id(self, username: str) -> int:
-        query_params = {"username": username}
-
-        with get_database_cursor() as cursor:
-            cursor.execute(QUERY_CURRENT_USER_ID, query_params)
-            result = cursor.fetchone()
-
-            if not result:
-                raise NonExistentMovieException(
-                    "Provided movie does not exist!"
-                )
-
-            return result[0]
+    def __init__(self, user_id: int) -> None:
+        self.user_id = user_id
 
     def update_rating(self, rating_update_input: RatingUpdateInput) -> None:
-        todays_date = datetime.today().strftime("%d-%m-%Y")
+        todays_date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
         query_params = {
             "user_id": self.user_id,
             "movie_id": rating_update_input.movie_id,
@@ -119,6 +101,13 @@ class MovieRatingUpdater:
 
         with get_database_cursor_and_commit() as cursor:
             cursor.execute(UPDATE_RATING_QUERY, query_params)
+
+
+async def load_movie_rating_form_from_request(
+    request: Request,
+) -> int:
+    form = await request.form()
+    return form["rating"] # type: ignore
 
 
 if __name__ == "__main__":

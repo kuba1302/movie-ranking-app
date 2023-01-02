@@ -91,8 +91,8 @@
         },
         {
             "id": 5, 
-            "user_id": 0,
-            "movie_id": 2, 
+            "user_id": 2,
+            "movie_id": 0, 
             "rating": 10, 
             "rating_date": "10-12-2022"
         }

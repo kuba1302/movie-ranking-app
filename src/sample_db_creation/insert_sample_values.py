@@ -15,14 +15,15 @@ class Table(BaseModel):
 
 class DataInserter:
     def __init__(self, sample_data_path: Path = sample_data_path) -> None:
-        sample_data = self._load_data(sample_data_path)
-        print([x for x in sample_data.items()])
+        self.sample_data = self._load_data(sample_data_path)
+        print([x for x in self.sample_data.items()])
         self.data = [
-            Table(name=name, values=values) for name, values in sample_data.items()
+            Table(name=name, values=values)
+            for name, values in self.sample_data.items()
         ]
 
     @staticmethod
-    def _load_data(path: Path) -> list[dict]:
+    def _load_data(path: Path) -> dict[str, list[dict]]:
         with open(str(path)) as file:
             return json.load(file)
 
@@ -62,7 +63,12 @@ class DataInserter:
         for table in self.data:
             self._insert_data_to_table(table)
 
+    def insert_data_to_table(self, table_key: str) -> None:
+        one_sample_value = self.sample_data[table_key]
+        table = Table(name=table_key, values=one_sample_value)
+        self._insert_data_to_table(table)
+
 
 if __name__ == "__main__":
     inserter = DataInserter()
-    inserter.insert_data_to_tables()
+    inserter.insert_data_to_table("ratings")
