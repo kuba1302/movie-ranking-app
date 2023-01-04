@@ -6,6 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from loguru import logger
 
+
 from src.auth import (
     OAuth2PasswordBearerWithCookie,
     UserCreator,
@@ -24,6 +25,7 @@ from src.core import (
     MovieRatingUpdater,
     TableCreator,
     load_movie_rating_form_from_request,
+    UserRatingsCreator
 )
 from src.exceptions import NonExistentMovieException
 from src.models.movie import RatingUpdateInput
@@ -36,7 +38,7 @@ from src.models.context import (
 from src.models.db import User
 
 app = FastAPI()
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory="/"), name="static")
 
 templates = Jinja2Templates(directory="templates")
 ouath2 = OAuth2PasswordBearerWithCookie(tokenUrl="token", templates=templates)
@@ -162,17 +164,29 @@ def ranking(
     return templates.TemplateResponse("ranking.html", context.dict())
 
 
+@app.get("/user-ranking", response_class=HTMLResponse)
+def user_ranking(
+    request: Request, user: User = Depends(get_current_user_from_token)
+):
+    table_creator = UserRatingsCreator(user_id=user.id)
+    table = table_creator.get_best_movies()
+    context = RankingContext(request=request, table=table)
+    return templates.TemplateResponse("user_ranking.html", context.dict())
+
 @app.get("/movie/{movie_id}", response_class=HTMLResponse)
 def movie(
     movie_id: int,
     request: Request,
     user: User = Depends(get_current_user_from_token),
 ):
-    movie_page_creator = MoviePageCreator()
+    movie_page_creator = MoviePageCreator(movie_id=movie_id)
 
     try:
-        movie = movie_page_creator.get_movie(movie_id=movie_id)
-        context = MoviesContext(request=request, **movie.dict())
+        movie = movie_page_creator.get_movie()
+        movie_plot = movie_page_creator.generate_plot()
+        context = MoviesContext(
+            request=request, plot=movie_plot, **movie.dict()
+        )
         return templates.TemplateResponse("movie.html", context.dict())
 
     except NonExistentMovieException:
@@ -192,7 +206,7 @@ async def movie_post(
     updater = MovieRatingUpdater(user.id)
     updater.update_rating(rating_input)
 
-    movie_page_creator = MoviePageCreator()
-    movie = movie_page_creator.get_movie(movie_id=movie_id)
+    movie_page_creator = MoviePageCreator(movie_id=movie_id)
+    movie = movie_page_creator.get_movie()
     context = MoviesContext(request=request, **movie.dict())
     return templates.TemplateResponse("movie.html", context.dict())

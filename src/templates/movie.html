@@ -1,62 +1,54 @@
-<html>
-<link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet">
-<div class="movie-page">
-    {% if name %}
-    <div>
-        <div class="navigation-item">
-            <h1> Film ranking</h1>
-        </div>
-        <div class="navigation-item">
-            <h1> User details</h1>
-        </div>
-    </div>
-    <h2>
-        {{ name }}
-    </h2>
-    <div class="user-rating">
-        <form method="post">
-            <select name="rating">
-                <option value=1>1</option>
-                <option value=2>2</option>
-                <option value=3>3</option>
-                <option value=4>4</option>
-                <option value=5>5</option>
-                <option value=6>6</option>
-                <option value=7>7</option>
-                <option value=8>8</option>
-                <option value=9>9</option>
-                <option value=10>10</option>
-            </select>
-            <br><br>
-            <input type="submit" value="Submit">
-        </form>
-    </div>
-    <div class="movie-data">
-        <p> Description</p>
-        <p> {{ description }} </p>
-    </div>
-    <div class="movie-data">
-        <p> Rating</p>
-        <p> {{ mean_rating }} </p>
-    </div>
-    <div class="movie-data">
-        <p> Director</p>
-        <p> {{ director }} </p>
-    </div>
-    <div class="movie-data">
-        <p> Actors</p>
+{% extends "base.html" %}
+{% block content %}
 
-        <ul>
-            {% for actor in actors_data %}
-            <li>{{ actor.name }} {{ actor.surname }}</li>
-            {% endfor %}
-        </ul>
-    </div>
+{% if name %}
+<h2>
+    {{ name }}
+</h2>
+<div class="user-rating">
+    <form method="post">
+        <select name="rating">
+            <option value=1>1</option>
+            <option value=2>2</option>
+            <option value=3>3</option>
+            <option value=4>4</option>
+            <option value=5>5</option>
+            <option value=6>6</option>
+            <option value=7>7</option>
+            <option value=8>8</option>
+            <option value=9>9</option>
+            <option value=10>10</option>
+        </select>
+        <br><br>
+        <input type="submit" value="Submit">
+    </form>
+</div>
+<div class="movie-data">
+    <p> Description</p>
+    <p> {{ description }} </p>
+</div>
+<div class="movie-data">
+    <p> Rating</p>
+    <p> {{ mean_rating }} </p>
+</div>
+<div class="movie-data">
+    <p> Director</p>
+    <p> {{ director }} </p>
+</div>
+<div class="movie-data">
+    <p> Actors</p>
 
-    {% else %}
-    <h1> Invalid movie selected. Try again!</h1>
-    {% endif %}
-
+    <ul>
+        {% for actor in actors_data %}
+        <li>{{ actor.name }} {{ actor.surname }}</li>
+        {% endfor %}
+    </ul>
 </div>
 
-</html>
+<img src={{ plot }} alt="my plot">
+
+{% else %}
+<h1> Invalid movie selected. Try again!</h1>
+{% endif %}
+
+{% endblock %}

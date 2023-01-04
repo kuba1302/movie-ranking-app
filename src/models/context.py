@@ -2,7 +2,7 @@ from fastapi import Request
 from pydantic import BaseModel
 
 from src.models.auth import UserFormValidation
-from src.models.movie import Movie, MovieUserRating
+from src.models.movie import Movie
 
 # class ContextArbitraryTypesBase(BaseModel):
 #     class Config:
@@ -44,19 +44,18 @@ class RankingContext(BaseModel):
 
 class MoviesContext(Movie):
     request: Request
+    plot: str | None = None
 
     class Config:
         arbitrary_types_allowed = True
 
     @classmethod
     def wrong_movie_context(cls, request: Request):
-        return cls(
-            request=request,
-        )
+        return cls(request=request)
 
 
-class MoviesUserRatingContext(MovieUserRating):
-    request: Request
+# class MoviesUserRatingContext(MovieUserRating):
+#     request: Request
 
-    class Config:
-        arbitrary_types_allowed = True
+#     class Config:
+#         arbitrary_types_allowed = True

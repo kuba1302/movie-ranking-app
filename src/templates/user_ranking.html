@@ -4,16 +4,17 @@
     <tr>
         <th>Ranking</th>
         <th>Movie name</th>
-        <th>Mean rating</th>
+        <th>User rating</th>
 
     </tr>
     {% for row in table %}
     <tr>
         <td>{{ row.ranking_place }}</td>
         <td> <a href={{ '/movie/%i' % row.index }}>{{ row.name }}</a></td>
-        <td>{{ row.mean_rating }}</td>
+        <td>{{ row.rating }}</td>
     </tr>
     {% endfor %}
 
 </table>
+
 {% endblock %}

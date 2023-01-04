@@ -4,3 +4,4 @@ from .movie import (
     MovieRatingUpdater,
 )
 from .ranking import TableCreator
+from .user_ratings import UserRatingsCreator

@@ -3,24 +3,49 @@ import pprint
 from fastapi import Request
 
 from datetime import datetime
+
+import pandas as pd
 from src.exceptions import NonExistentMovieException
-from src.models.movie import Movie, RatingUpdateInput 
+from src.models.movie import Movie, RatingUpdateInput
 from src.sqlite import (
     dict_from_row,
     get_database_cursor,
     get_database_cursor_and_commit,
 )
 from loguru import logger
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+import matplotlib.pyplot as plt
+
+
+import io
+import base64
+
+from src.sqlite.db_connection import get_database_connection
+
+plt.switch_backend("Agg")
 
 QUERY_MOVIE = """
     --sql
-    with movie_ratings as (
+    with ratings_newest as (
+    SELECT movie_id, user_id, rating_date, rating FROM ( 
+        SELECT 
+            movie_id, 
+            user_id, 
+            rating_date, 
+            rating,
+            RANK() OVER (PARTITION BY movie_id, user_id 
+            ORDER BY rating_date DESC) dest_rank
+        FROM ratings
+        ) 
+    WHERE dest_rank = 1
+    ),
+    movie_ratings as (
         SELECT AVG(rating) as mean_rating, 
                 movies.id
-        FROM ratings
+        FROM ratings_newest
         LEFT JOIN movies
-        ON ratings.movie_id = movies.id
-        GROUP BY ratings.movie_id
+        ON ratings_newest.movie_id = movies.id
+        GROUP BY ratings_newest.movie_id
     ),
     actors_agg as (
         SELECT actor_occurences.movie_id,
@@ -66,9 +91,25 @@ UPDATE_RATING_QUERY = """
 """
 
 
+def get_query_movei_ratigns_by_date(movie_id: int) -> str:
+    return f"""
+        --sql
+        SELECT movie_id, 
+            AVG(rating), 
+            strftime('%d-%m-%Y', rating_date) AS rating_date
+        FROM ratings
+        WHERE movie_id = {movie_id}
+        GROUP BY rating_date, movie_id
+        ORDER BY rating_date
+    ;"""
+
+
 class MoviePageCreator:
-    def get_movie(self, movie_id: int) -> Movie:
-        query_params = {"movie_id": movie_id}
+    def __init__(self, movie_id: int) -> None:
+        self.movie_id = movie_id
+
+    def get_movie(self) -> Movie:
+        query_params = {"movie_id": self.movie_id}
 
         with get_database_cursor() as cursor:
             cursor.execute(QUERY_MOVIE, query_params)
@@ -85,13 +126,57 @@ class MoviePageCreator:
             )
             return Movie(**result_dict)
 
+    def _get_query_movie_ratigns_by_date(self) -> str:
+        return f"""
+            --sql
+            SELECT 
+                AVG(rating) as rating, 
+                rating_date
+            FROM (
+                SELECT 
+                    rating, 
+                    strftime('%d-%m-%Y', rating_date) AS rating_date
+                FROM ratings
+                WHERE movie_id = {self.movie_id}
+            )
+            GROUP BY rating_date
+            ORDER BY rating_date ASC
+        ;"""
+
+    def _get_plot_data(self) -> pd.DataFrame:
+        with get_database_connection() as connection:
+            return pd.read_sql(
+                self._get_query_movie_ratigns_by_date(), connection
+            )
+
+    def generate_plot(self) -> str:
+        fig, ax = plt.subplots(1, 1)
+        ax.set_title("Movie mean rating over time")
+        ax.set_xlabel("Rating")
+        ax.set_ylabel("Mean rating")
+        ax.grid()
+
+        print("id", self.movie_id)
+        data = self._get_plot_data()
+        logger.info(data)
+        ax.plot(data["rating_date"], data["rating"], "ro-")
+
+        pngImage = io.BytesIO()
+        FigureCanvas(fig).print_png(pngImage)
+
+        pngImageB64String = "data:image/png;base64,"
+        pngImageB64String += base64.b64encode(pngImage.getvalue()).decode(
+            "utf8"
+        )
+        return pngImageB64String
+
 
 class MovieRatingUpdater:
     def __init__(self, user_id: int) -> None:
         self.user_id = user_id
 
     def update_rating(self, rating_update_input: RatingUpdateInput) -> None:
-        todays_date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+        todays_date = datetime.today().strftime("%Y-%m-%d %H:%M:%S")
         query_params = {
             "user_id": self.user_id,
             "movie_id": rating_update_input.movie_id,
@@ -107,9 +192,4 @@ async def load_movie_rating_form_from_request(
     request: Request,
 ) -> int:
     form = await request.form()
-    return form["rating"] # type: ignore
-
-
-if __name__ == "__main__":
-    movie = MoviePageCreator()
-    pprint.pprint(movie.get_movie(1).dict())
+    return form["rating"]  # type: ignore
