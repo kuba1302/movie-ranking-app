@@ -1,20 +1,22 @@
 {% extends "base.html" %}
 {% block content %}
-<table>
-    <tr>
-        <th>Ranking</th>
-        <th>Movie name</th>
-        <th>User rating</th>
+<div class="ranking-table">
 
-    </tr>
-    {% for row in table %}
-    <tr>
-        <td>{{ row.ranking_place }}</td>
-        <td> <a href={{ '/movie/%i' % row.index }}>{{ row.name }}</a></td>
-        <td>{{ row.rating }}</td>
-    </tr>
-    {% endfor %}
+    <table>
+        <tr>
+            <th>Ranking</th>
+            <th>Movie name</th>
+            <th>User rating</th>
 
-</table>
+        </tr>
+        {% for row in table %}
+        <tr>
+            <td>{{ row.ranking_place }}</td>
+            <td> <a href={{ '/movie/%i' % row.index }}>{{ row.name }}</a></td>
+            <td>{{ row.rating }}</td>
+        </tr>
+        {% endfor %}
 
+    </table>
+</div>
 {% endblock %}

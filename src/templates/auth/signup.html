@@ -1,36 +1,27 @@
 {% extends "base.html" %}
 {% block content %}
 
-<form method='POST'>
-    <h1> Create an account!</h1>
-    <div>
+<h1> Create an account!</h1>
+<div class="credential-input">
+    <form method='POST'>
         <label for='username'>Username</label>
         <input class='form-control' type='username' name='username' placeholder='your username' />
-    </div>
-
-    <div>
         <label for='password'>Password</label>
         <input class='form-control' type='password' name='password' placeholder='your password' />
-    </div>
-    <div>
         <label for='password'>Adress</label>
         <input class='form-control' type='adress' name='adress' placeholder='your adress' />
-    </div>
-    <div>
         <label for='city'>City</label>
         <input class='form-control' type='city' name='city' placeholder='your city' />
-    </div>
-    <div>
         <label for='country'> Country</label>
         <input class='form-control' type='country' name='country' placeholder='your country' />
-    </div>
-    <button class='btn btn-primary mt-2' type='submit'>Login </button>
-</form>
+        <button class='btn btn-primary mt-2' type='submit'>Login </button>
+    </form>
+</div>
 
 {% for invalid_field in invalid_fields %}
-    {% if not valid %}
-    <p> Invalid {{ invalid_field }} provided! Try again</p>
-    {% endif %}
+{% if not valid %}
+<p> Invalid {{ invalid_field }} provided! Try again</p>
+{% endif %}
 {% endfor %}
 
 <div class='mt-3'>

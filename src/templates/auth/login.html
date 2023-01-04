@@ -1,32 +1,29 @@
 {% extends "base.html" %}
 {% block content %}
 
-<form method='POST'>
-    <h1>Log in to your account!</h1> 
-    <div>
+<h1>Log in to your account!</h1>
+<div class="credential-input">
+    <form method='POST' class="credential-form">
         <label for='username'>Username</label>
         <input class='form-control' type='username' name='username' placeholder='your username' />
-    </div>
 
-    <div>
         <label for='password'>Password</label>
         <input class='form-control' type='password' name='password' placeholder='your password' />
-    </div>
-    <button class='btn btn-primary mt-2' type='submit'>Login </button>
-
-    {% if unmatched_credentials %}
-    <p> Unmatched credentials! Try again</p>
-    {% endif %}
-
-    {% if not valid_username %}
-    <p> Invalid username provided! Try again </p>
-    {% endif %}
-
-    {% if not valid_password %}
-    <p> Invalid password provided! Try again</p>
-    {% endif %}
-
+        <button class='btn btn-primary mt-2' type='submit'>Login </button>
+</div>
 </form>
+{% if unmatched_credentials %}
+<p> Unmatched credentials! Try again</p>
+{% endif %}
+
+{% if not valid_username %}
+<p> Invalid username provided! Try again </p>
+{% endif %}
+
+{% if not valid_password %}
+<p> Invalid password provided! Try again</p>
+{% endif %}
+
 <div class='mt-3'>
     <p><a href='/signup'>Don't have an account? Sign up here</a></p>
 </div>

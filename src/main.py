@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any
 from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -25,7 +26,7 @@ from src.core import (
     MovieRatingUpdater,
     TableCreator,
     load_movie_rating_form_from_request,
-    UserRatingsCreator
+    UserRatingsCreator,
 )
 from src.exceptions import NonExistentMovieException
 from src.models.movie import RatingUpdateInput
@@ -38,15 +39,14 @@ from src.models.context import (
 from src.models.db import User
 
 app = FastAPI()
-app.mount("/static", StaticFiles(directory="/"), name="static")
+app.mount(
+    "/static",
+    StaticFiles(directory=Path(__file__).parents[0] / "static"),
+    name="static",
+)
 
 templates = Jinja2Templates(directory="templates")
 ouath2 = OAuth2PasswordBearerWithCookie(tokenUrl="token", templates=templates)
-
-
-# class ContextArbitraryTypesBase(BaseModel):
-#     class Config:
-#         arbitrary_types_allowed = True
 
 
 def get_current_user_from_token(token: str = Depends(ouath2)) -> str | Any:
@@ -173,6 +173,7 @@ def user_ranking(
     context = RankingContext(request=request, table=table)
     return templates.TemplateResponse("user_ranking.html", context.dict())
 
+
 @app.get("/movie/{movie_id}", response_class=HTMLResponse)
 def movie(
     movie_id: int,
@@ -208,5 +209,6 @@ async def movie_post(
 
     movie_page_creator = MoviePageCreator(movie_id=movie_id)
     movie = movie_page_creator.get_movie()
-    context = MoviesContext(request=request, **movie.dict())
+    movie_plot = movie_page_creator.generate_plot()
+    context = MoviesContext(request=request, plot=movie_plot, **movie.dict())
     return templates.TemplateResponse("movie.html", context.dict())

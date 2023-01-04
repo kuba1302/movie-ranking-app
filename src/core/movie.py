@@ -16,12 +16,17 @@ from loguru import logger
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import matplotlib.pyplot as plt
 
-
+import matplotlib as mpl
 import io
 import base64
 
 from src.sqlite.db_connection import get_database_connection
 
+COLOR = '#565656'
+mpl.rcParams['text.color'] = COLOR
+mpl.rcParams['axes.labelcolor'] = COLOR
+mpl.rcParams['xtick.color'] = COLOR
+mpl.rcParams['ytick.color'] = COLOR
 plt.switch_backend("Agg")
 
 QUERY_MOVIE = """
@@ -155,11 +160,11 @@ class MoviePageCreator:
         ax.set_xlabel("Rating")
         ax.set_ylabel("Mean rating")
         ax.grid()
-
-        print("id", self.movie_id)
+        ax.set_facecolor("#D7CEC7")
+        fig.set_facecolor("#D7CEC7")
         data = self._get_plot_data()
         logger.info(data)
-        ax.plot(data["rating_date"], data["rating"], "ro-")
+        ax.plot(data["rating_date"], data["rating"], "ro-", color="#76323F")
 
         pngImage = io.BytesIO()
         FigureCanvas(fig).print_png(pngImage)
