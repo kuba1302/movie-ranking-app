@@ -161,6 +161,7 @@ class MoviePageCreator:
         ax.set_ylabel("Mean rating")
         ax.grid()
         ax.set_facecolor("#D7CEC7")
+        ax.set_ylim(0, 10)
         fig.set_facecolor("#D7CEC7")
         data = self._get_plot_data()
         logger.info(data)

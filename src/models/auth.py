@@ -20,12 +20,20 @@ class UserFormValidation(BaseModel):
         return True if self.valid_username and self.valid_password else False
 
 
-class SignUpForm(BaseModel):
+class UserDataForm(BaseModel):
     username: str
     password: str
     adress: str
     city: str
     country: str
+
+
+class UserChangeDataForm(BaseModel):
+    username: str
+    password: str | None
+    adress: str | None
+    city: str | None
+    country: str | None
 
 
 class SignUpFormValidation(BaseModel):
@@ -48,3 +56,40 @@ class SignUpFormValidation(BaseModel):
 
     def update_value(self, key: str, value: bool) -> None:
         setattr(self, key, value)
+
+
+class UserUpdateInfo(BaseModel):
+    username: str
+    user_id: int
+    password_hash: str | None
+    adress: str | None
+    city: str | None
+    country: str | None
+
+    @property
+    def user_table_to_update(self) -> bool:
+        return True if self.password_hash else False
+
+    @property
+    def user_info_table_to_update(self) -> bool:
+        bool_values_to_check = [
+            self.adress,
+            self.city,
+            self.country,
+        ]
+        return True if any(bool_values_to_check) else False
+
+    @property
+    def anything_to_update(self) -> bool:
+        return (
+            True
+            if self.user_table_to_update or self.user_info_table_to_update
+            else False
+        )
+
+    def update_info_table_dict(self) -> dict:
+        return {
+            "adress": self.adress,
+            "city": self.city,
+            "country": self.country,
+        }

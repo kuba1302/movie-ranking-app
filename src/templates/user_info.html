@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2> Hello {{ username }} user! </h2>
+<h3> You can change your personal information here!</h3>
+
+<div class="user-change-input">
+    <form method='POST'>
+        <label for='password'>Password</label>
+        <input class='form-control' type='password' name='password' placeholder='your password' />
+        <label for='password'>Adress</label>
+        <input class='form-control' type='adress' name='adress' placeholder='your adress' />
+        <label for='city'>City</label>
+        <input class='form-control' type='city' name='city' placeholder='your city' />
+        <label for='country'> Country</label>
+        <input class='form-control' type='country' name='country' placeholder='your country' />
+        <button class='btn btn-primary mt-2' type='submit'>Change info! </button>
+    </form>
+</div>
+
+<div class='sign-href'>
+    <p><a href='/logout'>Click here to logout</a></p>
+</div>
+
+{% if invalid_password %}
+<p> Invalid password provided! It can not contain spaces. Try again!</p>
+{% endif %}
+
+{% endblock %}

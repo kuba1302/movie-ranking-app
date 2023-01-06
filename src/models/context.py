@@ -28,10 +28,14 @@ class LoginResponseContext(UserFormValidation):
 
 class UserContext(BaseModel):
     request: Request
-    user: dict[str, str] | None
+    username: str | None
 
     class Config:
         arbitrary_types_allowed = True
+
+
+class UserInfoUpadeContex(UserContext):
+    invalid_password: bool
 
 
 class RankingContext(BaseModel):

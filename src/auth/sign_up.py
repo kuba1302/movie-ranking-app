@@ -2,14 +2,14 @@ from fastapi import Request
 from loguru import logger
 
 from src.auth.crypt_context import crypt_context
-from src.models.auth import SignUpForm, SignUpFormValidation, NewUserInput
+from src.models.auth import UserDataForm, SignUpFormValidation, NewUserInput
 from src.models.db import User, UserInfo
 from src.sqlite import get_database_cursor, get_database_cursor_and_commit
 
 
-async def load_sign_up_form_from_request(request: Request) -> SignUpForm:
+async def load_sign_up_form_from_request(request: Request) -> UserDataForm:
     form = await request.form()
-    return SignUpForm(
+    return UserDataForm(
         username=form["username"],
         password=form["password"],
         adress=form["adress"],
@@ -19,7 +19,7 @@ async def load_sign_up_form_from_request(request: Request) -> SignUpForm:
 
 
 class UserInputValidator:
-    def __init__(self, sing_up_form: SignUpForm) -> None:
+    def __init__(self, sing_up_form: UserDataForm) -> None:
         self.sign_up_form = sing_up_form
         self.sign_up_validation = SignUpFormValidation(
             valid_adress=True,
@@ -29,8 +29,11 @@ class UserInputValidator:
             valid_username=True,
         )
 
-    def _detect_spaces(self, form: str) -> bool:
-        if " " in form:
+    @staticmethod
+    def detect_spaces(form: str | None) -> bool:
+        if not form:
+            return False
+        elif " " in form:
             return True
         else:
             return False
@@ -38,7 +41,7 @@ class UserInputValidator:
     def check_if_no_spaces(self) -> None:
         fields_to_check = ["password", "username"]
         for field in fields_to_check:
-            if self._detect_spaces(self.sign_up_form.dict()[field]):
+            if self.detect_spaces(self.sign_up_form.dict()[field]):
                 self.sign_up_validation.update_value(f"valid_{field}", False)
 
     def check_if_not_none(self) -> None:
@@ -96,7 +99,7 @@ class UserCreator:
         VALUES (:user_id, :adress, :city, :country);
     """
 
-    def __init__(self, sign_up_form: SignUpForm) -> None:
+    def __init__(self, sign_up_form: UserDataForm) -> None:
         self.sign_up_form = sign_up_form
 
     @staticmethod

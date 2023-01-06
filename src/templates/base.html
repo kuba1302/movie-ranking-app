@@ -35,12 +35,6 @@
             font-size: 25px;
         }
 
-        label {
-            color: #565656;
-            font-family: Verdana, Geneva, Tahoma, sans-serif;
-            font-size: 25px;
-        }
-
         th {
             color: #76323F;
             font-family: Verdana, Geneva, Tahoma, sans-serif;
@@ -78,6 +72,8 @@
             border-style: solid;
             border-width: 5px;
             border-color: 76323F;
+            display: flex;
+            justify-content: space-between;
         }
 
         .movie-content {
@@ -89,18 +85,18 @@
         }
 
         .credential-input {
-            height: 100%;
-            width: 100%;
-            display: flex;
-        }
-
-        .credential-form {
-            margin: auto;
+            vertical-align: middle;
         }
 
         select {
             background-color: #76323F;
             color: #ded5d5;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            font-size: 25px;
+        }
+
+        label {
+            color: #565656;
             font-family: Verdana, Geneva, Tahoma, sans-serif;
             font-size: 25px;
         }
@@ -119,11 +115,9 @@
             font-size: 25px;
         }
     </style>
-
 </head>
 
 <body>
-    <link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet">
     <div class="content">
         <div class="navigation-bar">
             <div class="navigation-item">

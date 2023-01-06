@@ -19,7 +19,9 @@ from src.auth import (
     load_data_from_request,
     load_sign_up_form_from_request,
     validate_user_form,
+    load_update_form_from_request,
 )
+from src.auth.change_credentials import UserInfoChanger
 from src.config import settings
 from src.core import (
     MoviePageCreator,
@@ -35,15 +37,11 @@ from src.models.context import (
     MoviesContext,
     RankingContext,
     UserContext,
+    UserInfoUpadeContex,
 )
 from src.models.db import User
 
 app = FastAPI()
-app.mount(
-    "/static",
-    StaticFiles(directory=Path(__file__).parents[0] / "static"),
-    name="static",
-)
 
 templates = Jinja2Templates(directory="templates")
 ouath2 = OAuth2PasswordBearerWithCookie(tokenUrl="token", templates=templates)
@@ -146,11 +144,11 @@ def credentials_expired(request: Request):
 def home(request: Request):
     try:
         user = get_user_from_cookie(request)
-        context = UserContext(request=request, user=user.dict())
+        context = UserContext(request=request, username=user.username)
         return templates.TemplateResponse("home.html", context.dict())
 
     except HTTPException:
-        context = UserContext(request=request, user=None)
+        context = UserContext(request=request, username=None)
         return templates.TemplateResponse("home.html", context.dict())
 
 
@@ -212,3 +210,47 @@ async def movie_post(
     movie_plot = movie_page_creator.generate_plot()
     context = MoviesContext(request=request, plot=movie_plot, **movie.dict())
     return templates.TemplateResponse("movie.html", context.dict())
+
+
+@app.get("/user-info", response_class=HTMLResponse)
+def user_info(
+    request: Request, user: User = Depends(get_current_user_from_token)
+):
+    user = get_user_from_cookie(request)
+    context = UserInfoUpadeContex(
+        request=request,
+        username=user.username,
+        invalid_password=False,
+    )
+    return templates.TemplateResponse("user_info.html", context.dict())
+
+
+@app.post("/user-info", response_class=HTMLResponse)
+async def user_info_post(
+    request: Request, user: User = Depends(get_current_user_from_token)
+):
+    update_user_form = await load_update_form_from_request(
+        request, user.username
+    )
+    space_in_password = UserInputValidator.detect_spaces(
+        update_user_form.password
+    )
+
+    if space_in_password:
+        context = UserInfoUpadeContex(
+            request=request,
+            username=user.username,
+            invalid_password=True,
+        )
+        return templates.TemplateResponse("/user_info.html", context.dict())
+
+    user_info_changer = UserInfoChanger(
+        update_user_form=update_user_form, user_id=user.id
+    )
+    user_info_changer.update_user_data()
+    context = UserInfoUpadeContex(
+        request=request,
+        username=user.username,
+        invalid_password=False,
+    )
+    return templates.TemplateResponse("/user_info.html", context.dict())

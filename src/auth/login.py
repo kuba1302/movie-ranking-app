@@ -26,9 +26,9 @@ def get_password_hash(password: str) -> str:
 
 
 def _query_user(username: str | None) -> User | None:
-    if not username: 
+    if not username:
         return None
-    
+
     query = """
                 SELECT  id, 
                         username, 
@@ -52,18 +52,22 @@ def authenticate_user(user_form: UserForm | Any) -> User:
     if not user:
         raise credentials_exception
 
-    if not _verify_password(user_form.password, user.password_hash): # type: ignore        
+    if not _verify_password(user_form.password, user.password_hash):  # type: ignore
         raise credentials_exception
 
     return user
 
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
+def create_access_token(
+    data: dict, expires_delta: timedelta | None = None
+) -> str:
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
+        expire = datetime.utcnow() + timedelta(
+            minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+        )
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(
         to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM
@@ -89,7 +93,8 @@ def decode_token(token: str | None) -> User:
         raise credentials_exception
 
     user = _query_user(username)
-    return user # type: ignore
+    return user  # type: ignore
+
 
 def get_user_from_cookie(request: Request) -> User:
     token = request.cookies.get(settings.COOKIE_NAME)
@@ -98,7 +103,8 @@ def get_user_from_cookie(request: Request) -> User:
 
 async def load_data_from_request(request: Request) -> UserForm:
     form = await request.form()
-    return UserForm(username=form.get("username"), password=form.get("password")) # type: ignore
+    return UserForm(username=form.get("username"), password=form.get("password"))  # type: ignore
+
 
 def validate_user_form(user_form: UserForm) -> UserFormValidation:
     return UserFormValidation(

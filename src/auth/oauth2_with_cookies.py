@@ -33,7 +33,7 @@ class OAuth2PasswordBearerWithCookie(OAuth2):
         )
 
     async def __call__(self, request: Request) -> str | None | Response:
-        authorization: str = request.cookies.get(settings.COOKIE_NAME)
+        authorization: str | None = request.cookies.get(settings.COOKIE_NAME)
         scheme, param = get_authorization_scheme_param(authorization)
         if not authorization or scheme.lower() != "bearer":
             if self.auto_error:
