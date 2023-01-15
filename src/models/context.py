@@ -4,10 +4,6 @@ from pydantic import BaseModel
 from src.models.auth import UserFormValidation
 from src.models.movie import Movie
 
-# class ContextArbitraryTypesBase(BaseModel):
-#     class Config:
-#         arbitrary_types_allowed = True
-
 
 class LoginResponseContext(UserFormValidation):
     request: Request

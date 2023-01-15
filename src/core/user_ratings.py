@@ -1,5 +1,5 @@
-from loguru import logger
 import pandas as pd
+from loguru import logger
 
 from src.sqlite import get_database_connection
 
@@ -39,9 +39,7 @@ class UserRatingsCreator:
 
     def get_movies_table(self) -> pd.DataFrame:
         with get_database_connection() as connection:
-            return pd.read_sql(
-                get_user_ratings(user_id=self.user_id), connection
-            )
+            return pd.read_sql(get_user_ratings(user_id=self.user_id), connection)
 
     def get_best_movies(self) -> list[dict]:
         table = self.get_movies_table()

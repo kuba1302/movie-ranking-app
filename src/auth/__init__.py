@@ -1,3 +1,4 @@
+from .change_credentials import UserInfoChanger, load_update_form_from_request
 from .login import (
     authenticate_user,
     create_access_token,
@@ -7,9 +8,4 @@ from .login import (
     validate_user_form,
 )
 from .oauth2_with_cookies import OAuth2PasswordBearerWithCookie
-from .sign_up import (
-    UserCreator,
-    UserInputValidator,
-    load_sign_up_form_from_request,
-)
-from .change_credentials import UserInfoChanger, load_update_form_from_request
+from .sign_up import UserCreator, UserInputValidator, load_sign_up_form_from_request

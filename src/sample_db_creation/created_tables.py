@@ -97,10 +97,11 @@ def create_all_tables(queries: list[str]) -> None:
         for query in queries:
             cursor.execute(query)
 
-def create_one_table(query: str) -> None: 
+
+def create_one_table(query: str) -> None:
     with get_database_cursor() as cursor:
         cursor.execute(query)
-        
-        
+
+
 if __name__ == "__main__":
     create_one_table(CREATE_RATINGS_QUERY)

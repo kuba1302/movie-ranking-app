@@ -1,12 +1,12 @@
 from pathlib import Path
 from typing import Any
+
 from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.security import OAuth2, OAuth2PasswordRequestForm
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from loguru import logger
-
 
 from src.auth import (
     OAuth2PasswordBearerWithCookie,
@@ -18,8 +18,8 @@ from src.auth import (
     get_user_from_cookie,
     load_data_from_request,
     load_sign_up_form_from_request,
-    validate_user_form,
     load_update_form_from_request,
+    validate_user_form,
 )
 from src.auth.change_credentials import UserInfoChanger
 from src.config import settings
@@ -27,11 +27,10 @@ from src.core import (
     MoviePageCreator,
     MovieRatingUpdater,
     TableCreator,
-    load_movie_rating_form_from_request,
     UserRatingsCreator,
+    load_movie_rating_form_from_request,
 )
 from src.exceptions import NonExistentMovieException
-from src.models.movie import RatingUpdateInput
 from src.models.context import (
     LoginResponseContext,
     MoviesContext,
@@ -40,6 +39,7 @@ from src.models.context import (
     UserInfoUpadeContex,
 )
 from src.models.db import User
+from src.models.movie import RatingUpdateInput
 
 app = FastAPI()
 
@@ -116,9 +116,7 @@ async def sign_up_post(request: Request):
             "request": request,
             "invalid_fields": validator.get_invalid_fields(),
         }
-        return templates.TemplateResponse(
-            "auth/signup.html", context_not_valid
-        )
+        return templates.TemplateResponse("auth/signup.html", context_not_valid)
 
     user_creator = UserCreator(sing_up_form)
     user_creator.insert_user_data()
@@ -153,9 +151,7 @@ def home(request: Request):
 
 
 @app.get("/ranking", response_class=HTMLResponse)
-def ranking(
-    request: Request, user: User = Depends(get_current_user_from_token)
-):
+def ranking(request: Request, user: User = Depends(get_current_user_from_token)):
     table_creator = TableCreator()
     table = table_creator.get_best_movies()
     context = RankingContext(request=request, table=table)
@@ -163,9 +159,7 @@ def ranking(
 
 
 @app.get("/user-ranking", response_class=HTMLResponse)
-def user_ranking(
-    request: Request, user: User = Depends(get_current_user_from_token)
-):
+def user_ranking(request: Request, user: User = Depends(get_current_user_from_token)):
     table_creator = UserRatingsCreator(user_id=user.id)
     table = table_creator.get_best_movies()
     context = RankingContext(request=request, table=table)
@@ -183,9 +177,7 @@ def movie(
     try:
         movie = movie_page_creator.get_movie()
         movie_plot = movie_page_creator.generate_plot()
-        context = MoviesContext(
-            request=request, plot=movie_plot, **movie.dict()
-        )
+        context = MoviesContext(request=request, plot=movie_plot, **movie.dict())
         return templates.TemplateResponse("movie.html", context.dict())
 
     except NonExistentMovieException:
@@ -213,9 +205,7 @@ async def movie_post(
 
 
 @app.get("/user-info", response_class=HTMLResponse)
-def user_info(
-    request: Request, user: User = Depends(get_current_user_from_token)
-):
+def user_info(request: Request, user: User = Depends(get_current_user_from_token)):
     user = get_user_from_cookie(request)
     context = UserInfoUpadeContex(
         request=request,
@@ -229,12 +219,8 @@ def user_info(
 async def user_info_post(
     request: Request, user: User = Depends(get_current_user_from_token)
 ):
-    update_user_form = await load_update_form_from_request(
-        request, user.username
-    )
-    space_in_password = UserInputValidator.detect_spaces(
-        update_user_form.password
-    )
+    update_user_form = await load_update_form_from_request(request, user.username)
+    space_in_password = UserInputValidator.detect_spaces(update_user_form.password)
 
     if space_in_password:
         context = UserInfoUpadeContex(

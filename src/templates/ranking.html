@@ -12,7 +12,7 @@
     <tr>
         <td>{{ row.ranking_place }}</td>
         <td> <a href={{ '/movie/%i' % row.index }}>{{ row.name }}</a></td>
-        <td>{{ row.mean_rating }}</td>
+        <td>{{ row.mean_rating | round(1) }}</td>
     </tr>
     {% endfor %}
 

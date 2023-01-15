@@ -1,8 +1,8 @@
 from fastapi import Request
+
+from src.auth.crypt_context import crypt_context
 from src.models.auth import UserChangeDataForm, UserUpdateInfo
 from src.sqlite.db_connection import get_database_cursor_and_commit
-from src.auth.crypt_context import crypt_context
-
 
 UPDATE_USER = """
     UPDATE users
@@ -25,9 +25,7 @@ async def load_update_form_from_request(
 
 
 class UserInfoChanger:
-    def __init__(
-        self, update_user_form: UserChangeDataForm, user_id: int
-    ) -> None:
+    def __init__(self, update_user_form: UserChangeDataForm, user_id: int) -> None:
         self.update_user_form = update_user_form
         self.user_id = user_id
 
@@ -47,9 +45,7 @@ class UserInfoChanger:
             country=self.update_user_form.country,
         )
 
-    def _create_info_update_query(
-        self, user_update_info: UserUpdateInfo
-    ) -> str:
+    def _create_info_update_query(self, user_update_info: UserUpdateInfo) -> str:
         query = """
             update users_info
             set

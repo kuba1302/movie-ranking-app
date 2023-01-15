@@ -1,10 +1,16 @@
 import ast
+import base64
+import io
 import pprint
-from fastapi import Request
-
 from datetime import datetime
 
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 import pandas as pd
+from fastapi import Request
+from loguru import logger
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+
 from src.exceptions import NonExistentMovieException
 from src.models.movie import Movie, RatingUpdateInput
 from src.sqlite import (
@@ -12,21 +18,13 @@ from src.sqlite import (
     get_database_cursor,
     get_database_cursor_and_commit,
 )
-from loguru import logger
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-import matplotlib.pyplot as plt
-
-import matplotlib as mpl
-import io
-import base64
-
 from src.sqlite.db_connection import get_database_connection
 
-COLOR = '#565656'
-mpl.rcParams['text.color'] = COLOR
-mpl.rcParams['axes.labelcolor'] = COLOR
-mpl.rcParams['xtick.color'] = COLOR
-mpl.rcParams['ytick.color'] = COLOR
+COLOR = "#565656"
+mpl.rcParams["text.color"] = COLOR
+mpl.rcParams["axes.labelcolor"] = COLOR
+mpl.rcParams["xtick.color"] = COLOR
+mpl.rcParams["ytick.color"] = COLOR
 plt.switch_backend("Agg")
 
 QUERY_MOVIE = """
@@ -121,14 +119,10 @@ class MoviePageCreator:
             result = cursor.fetchone()
 
             if not result:
-                raise NonExistentMovieException(
-                    "Provided movie does not exist!"
-                )
+                raise NonExistentMovieException("Provided movie does not exist!")
 
             result_dict = dict_from_row(result)
-            result_dict["actors_data"] = ast.literal_eval(
-                result_dict["actors_data"]
-            )
+            result_dict["actors_data"] = ast.literal_eval(result_dict["actors_data"])
             return Movie(**result_dict)
 
     def _get_query_movie_ratigns_by_date(self) -> str:
@@ -150,9 +144,7 @@ class MoviePageCreator:
 
     def _get_plot_data(self) -> pd.DataFrame:
         with get_database_connection() as connection:
-            return pd.read_sql(
-                self._get_query_movie_ratigns_by_date(), connection
-            )
+            return pd.read_sql(self._get_query_movie_ratigns_by_date(), connection)
 
     def generate_plot(self) -> str:
         fig, ax = plt.subplots(1, 1)
@@ -171,9 +163,7 @@ class MoviePageCreator:
         FigureCanvas(fig).print_png(pngImage)
 
         pngImageB64String = "data:image/png;base64,"
-        pngImageB64String += base64.b64encode(pngImage.getvalue()).decode(
-            "utf8"
-        )
+        pngImageB64String += base64.b64encode(pngImage.getvalue()).decode("utf8")
         return pngImageB64String
 
 
