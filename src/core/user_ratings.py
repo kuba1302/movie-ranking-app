@@ -29,6 +29,7 @@ def get_user_ratings(user_id: int) -> str:
     ON movies.id = ratings_newest.movie_id
     LEFT JOIN movie_categories
     ON movies.category_id = movie_categories.id
+    WHERE ratings_newest.rating IS NOT NULL
     ORDER BY ratings_newest.rating DESC;
 """
 
