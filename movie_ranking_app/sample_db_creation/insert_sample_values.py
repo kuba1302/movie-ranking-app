@@ -3,7 +3,7 @@ from pathlib import Path
 
 from pydantic import BaseModel
 
-from src.sqlite import get_database_cursor_and_commit
+from movie_ranking_app.sqlite import get_database_cursor_and_commit
 
 sample_data_path = Path(__file__).parents[0] / "sample_data.json"
 

@@ -4,7 +4,7 @@ from fastapi.security import OAuth2
 from fastapi.security.utils import get_authorization_scheme_param
 from fastapi.templating import Jinja2Templates
 
-from src.config import settings
+from movie_ranking_app.config import settings
 
 
 class OAuth2PasswordBearerWithCookie(OAuth2):

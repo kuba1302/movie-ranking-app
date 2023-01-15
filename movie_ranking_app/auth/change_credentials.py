@@ -1,8 +1,8 @@
 from fastapi import Request
 
-from src.auth.crypt_context import crypt_context
-from src.models.auth import UserChangeDataForm, UserUpdateInfo
-from src.sqlite.db_connection import get_database_cursor_and_commit
+from movie_ranking_app.auth.crypt_context import crypt_context
+from movie_ranking_app.models.auth import UserChangeDataForm, UserUpdateInfo
+from movie_ranking_app.sqlite.db_connection import get_database_cursor_and_commit
 
 UPDATE_USER = """
     UPDATE users

@@ -11,14 +11,14 @@ from fastapi import Request
 from loguru import logger
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
-from src.exceptions import NonExistentMovieException
-from src.models.movie import Movie, RatingUpdateInput
-from src.sqlite import (
+from movie_ranking_app.exceptions import NonExistentMovieException
+from movie_ranking_app.models.movie import Movie, RatingUpdateInput
+from movie_ranking_app.sqlite import (
     dict_from_row,
     get_database_cursor,
     get_database_cursor_and_commit,
 )
-from src.sqlite.db_connection import get_database_connection
+from movie_ranking_app.sqlite.db_connection import get_database_connection
 
 COLOR = "#565656"
 mpl.rcParams["text.color"] = COLOR

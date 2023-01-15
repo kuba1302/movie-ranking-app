@@ -1,7 +1,7 @@
 import pandas as pd
 from loguru import logger
 
-from src.sqlite import get_database_connection
+from movie_ranking_app.sqlite import get_database_connection
 
 
 def get_user_ratings(user_id: int) -> str:

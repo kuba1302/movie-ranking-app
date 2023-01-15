@@ -1,6 +1,6 @@
 import pandas as pd
 
-from src.sqlite import get_database_connection
+from movie_ranking_app.sqlite import get_database_connection
 
 SELECT_BEST_MOVIES_QUERY = """
     --sql

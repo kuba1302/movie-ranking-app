@@ -1,4 +1,4 @@
-from src.sqlite import get_database_cursor
+from movie_ranking_app.sqlite import get_database_cursor
 
 CREATE_USERS_QUERY = """
     --sql

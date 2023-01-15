@@ -1,14 +1,12 @@
-from pathlib import Path
 from typing import Any
 
 from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
 from fastapi.responses import HTMLResponse, RedirectResponse
-from fastapi.security import OAuth2, OAuth2PasswordRequestForm
-from fastapi.staticfiles import StaticFiles
+from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
 from loguru import logger
 
-from src.auth import (
+from movie_ranking_app.auth import (
     OAuth2PasswordBearerWithCookie,
     UserCreator,
     UserInputValidator,
@@ -21,25 +19,25 @@ from src.auth import (
     load_update_form_from_request,
     validate_user_form,
 )
-from src.auth.change_credentials import UserInfoChanger
-from src.config import settings
-from src.core import (
+from movie_ranking_app.auth.change_credentials import UserInfoChanger
+from movie_ranking_app.config import settings
+from movie_ranking_app.core import (
     MoviePageCreator,
     MovieRatingUpdater,
     TableCreator,
     UserRatingsCreator,
     load_movie_rating_form_from_request,
 )
-from src.exceptions import NonExistentMovieException
-from src.models.context import (
+from movie_ranking_app.exceptions import NonExistentMovieException
+from movie_ranking_app.models.context import (
     LoginResponseContext,
     MoviesContext,
     RankingContext,
     UserContext,
     UserInfoUpadeContex,
 )
-from src.models.db import User
-from src.models.movie import RatingUpdateInput
+from movie_ranking_app.models.db import User
+from movie_ranking_app.models.movie import RatingUpdateInput
 
 app = FastAPI()
 
@@ -122,7 +120,6 @@ async def sign_up_post(request: Request):
     user_creator.insert_user_data()
 
     return RedirectResponse("/login", status_code=status.HTTP_303_SEE_OTHER)
-
 
 @app.get("/logout", response_class=HTMLResponse)
 def login_get():
