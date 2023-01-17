@@ -1,10 +1,10 @@
 from fastapi import Request
 from loguru import logger
 
-from src.auth.crypt_context import crypt_context
-from src.models.auth import NewUserInput, SignUpFormValidation, UserDataForm
-from src.models.db import User, UserInfo
-from src.sqlite import get_database_cursor, get_database_cursor_and_commit
+from movie_ranking_app.auth.crypt_context import crypt_context
+from movie_ranking_app.models.auth import NewUserInput, SignUpFormValidation, UserDataForm
+from movie_ranking_app.models.db import User, UserInfo
+from movie_ranking_app.sqlite import get_database_cursor, get_database_cursor_and_commit
 
 
 async def load_sign_up_form_from_request(request: Request) -> UserDataForm:

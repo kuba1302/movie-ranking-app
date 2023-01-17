@@ -1,8 +1,8 @@
 from fastapi import Request
 from pydantic import BaseModel
 
-from src.models.auth import UserFormValidation
-from src.models.movie import Movie
+from movie_ranking_app.models.auth import UserFormValidation
+from movie_ranking_app.models.movie import Movie
 
 
 class LoginResponseContext(UserFormValidation):

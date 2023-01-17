@@ -5,11 +5,11 @@ from fastapi import HTTPException, Request, status
 from jose import JWTError, jwt
 from loguru import logger
 
-from src.auth.crypt_context import crypt_context
-from src.config import settings
-from src.models.auth import UserForm, UserFormValidation
-from src.models.db import User
-from src.sqlite import dict_from_row, get_database_cursor
+from movie_ranking_app.auth.crypt_context import crypt_context
+from movie_ranking_app.config import settings
+from movie_ranking_app.models.auth import UserForm, UserFormValidation
+from movie_ranking_app.models.db import User
+from movie_ranking_app.sqlite import dict_from_row, get_database_cursor
 
 credentials_exception = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
