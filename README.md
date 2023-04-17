@@ -4,6 +4,7 @@ Simple webapp prepared for university course that allows users to rate movies. I
 - Clone repository
 - poetry install movie-ranking-app
 
+```
 ├── movie_ranking_app/
 │   ├── __init__.py
 │   ├── __pycache__/
@@ -79,3 +80,4 @@ Simple webapp prepared for university course that allows users to rate movies. I
 │       ├── ranking.html
 │       ├── user_info.html
 │       └── user_ranking.html
+```
