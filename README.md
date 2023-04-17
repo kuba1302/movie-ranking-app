@@ -9,6 +9,10 @@ The easiest way to install the app is to use Poetry:
 - Install Poetry: `pip install poetry`
 - Install the app: `poetry install movie-ranking-app`
 
+## Usage
+- Go to movie_ranking_app direcotry `cd movie_ranking_app`
+- Run `poetry run uvicorn main:app`
+
 ## Modules
 #### auth
 The auth module contains code related to user authentication, including the creation of user accounts, login, and changing account credentials. It also includes code for implementing OAuth2 authentication using cookies.
