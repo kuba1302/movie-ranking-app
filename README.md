@@ -18,7 +18,7 @@ The auth module contains code related to user authentication, including the crea
 - login.py: This module contains code for user login.
 - oauth2_with_cookies.py: This module contains code for implementing OAuth2 authentication using cookies.
 - sign_up.py: This module contains code for user account creation.
-- 
+
 #### config
 The config module contains configuration settings for the application.
 
@@ -40,8 +40,6 @@ The sample_db_creation module contains code for creating a sample database and i
 
 #### sqlite
 The sqlite module contains code for connecting to and interacting with a SQLite database.
-
-- db_connection.py: This module contains code for creating and managing a database connection.
 
 #### templates
 The templates module contains Jinja2 HTML templates used by the application to render web pages.
