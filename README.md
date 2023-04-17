@@ -4,6 +4,7 @@ Simple webapp prepared for university course that allows users to rate movies. I
 - Clone repository
 - poetry install movie-ranking-app
 
+File tree:
 ```
 ├── movie_ranking_app/
 │   ├── __init__.py
