@@ -10,8 +10,8 @@ The easiest way to install the app is to use Poetry:
 - Install the app: `poetry install movie-ranking-app`
 
 ## Usage
-- Go to movie_ranking_app direcotry `cd movie_ranking_app`
-- Run `poetry run uvicorn main:app`
+- Change directory: `cd movie_ranking_app`
+- Run: `poetry run uvicorn main:app`
 
 ## Modules
 #### auth
